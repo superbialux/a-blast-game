@@ -1,0 +1,23 @@
+{
+  "name": "blast",
+  "version": "1.0.0",
+  "description": "A \"blast\" game using Canvas & ES6",
+  "main": "index.js",
+  "author": "Maksim Bushmakin",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack --config ./config/webpack.config.prod.js",
+    "start": "webpack serve --config ./config/webpack.config.dev.js"
+  },
+  "devDependencies": {
+    "html-webpack-plugin": "^5.5.0",
+    "webpack": "^5.79.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.2"
+  },
+  "dependencies": {
+    "css-loader": "^6.7.3",
+    "normalize.css": "^8.0.1",
+    "style-loader": "^3.3.2"
+  }
+}
