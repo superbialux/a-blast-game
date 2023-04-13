@@ -4,6 +4,15 @@ class Vector {
     this.y = y;
   }
 
+  get xy() {
+    return this;
+  }
+
+  set xy(obj) {
+    this.x = obj.x;
+    this.y = obj.y;
+  }
+
   copy() {
     return new Vector(this.x, this.y);
   }

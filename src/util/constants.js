@@ -4,27 +4,14 @@ import PurpleTile from "../assets/purple.png";
 import YellowTile from "../assets/yellow.png";
 import RedTile from "../assets/red.png";
 
-const types = [
-  {
-    name: "blue",
-    img: BlueTile,
-  },
-  {
-    name: "green",
-    img: GreenTile,
-  },
-  {
-    name: "purple",
-    img: PurpleTile,
-  },
-  {
-    name: "yellow",
-    img: YellowTile,
-  },
-  {
-    name: "red",
-    img: RedTile,
-  },
-];
+const types = ["blue", "green", "purple", "yellow", "red"];
 
-export default types;
+const typeToImgMapping = {
+  blue: BlueTile,
+  green: GreenTile,
+  purple: PurpleTile,
+  yellow: YellowTile,
+  red: RedTile,
+};
+
+export { types, typeToImgMapping };
