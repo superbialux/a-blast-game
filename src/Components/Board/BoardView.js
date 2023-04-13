@@ -1,10 +1,4 @@
 import Vector from "../../Math/Vector";
-import { typeToImgMapping } from "../../util/constants";
-import BlueTile from "../../assets/blue.png";
-import GreenTile from "../../assets/green.png";
-import PurpleTile from "../../assets/purple.png";
-import YellowTile from "../../assets/yellow.png";
-import RedTile from "../../assets/red.png";
 import { TileView } from "../Tile";
 
 class BoardView {
@@ -12,50 +6,26 @@ class BoardView {
     this.ctx = ctx;
     this.pos = pos;
     this.dim = dim;
-
     this.tileSize = Vector.div(dim, size);
-    this.assets = {
-      blue: BlueTile,
-      green: GreenTile,
-      purple: PurpleTile,
-      yellow: YellowTile,
-      red: RedTile,
-    };
 
-    this.tiles = []
+    this.assets = [];
+    this.tiles = [];
   }
 
-  update(tiles) {
+  update({tiles: tiles2D}) {
+    const tiles = tiles2D.flat();
     const views = [];
 
     for (const tile of tiles) {
       const pos = Vector.mult(tile.indices, this.tileSize).add(this.pos);
 
-      const img = this.assets[tile.type];
+      const { src: img } = this.assets.find((a) => a.name === tile.type);
       const size = this.tileSize.copy();
 
       views.push(new TileView(this.ctx, img, pos, size));
     }
 
     this.tiles = views;
-  }
-
-  preload() {
-    const promises = [];
-    for (const key in this.assets) {
-      const promise = new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-          this.assets[key] = img;
-          resolve();
-        };
-        img.onerror = reject;
-        img.src = this.assets[key];
-      });
-      promises.push(promise);
-    }
-
-    return Promise.all(promises);
   }
 
   render(mousePos) {

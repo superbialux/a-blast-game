@@ -4,6 +4,12 @@ import Vector from "./Math/Vector";
 import BoardController from "./Components/Board/BoardController";
 import TileController from "./Components/Tile/TileController";
 import { BoardView } from "./Components/Board";
+import Scene from "./Scene";
+import BlueTile from "./assets/blue.png";
+import GreenTile from "./assets/green.png";
+import PurpleTile from "./assets/purple.png";
+import YellowTile from "./assets/yellow.png";
+import RedTile from "./assets/red.png";
 
 const container = document.createElement("div");
 container.classList.add("container");
@@ -35,30 +41,65 @@ let state = {
 canvas.addEventListener(
   "mousemove",
   (e) => {
-    state.mousePos.x = e.offsetX; 
-    state.mousePos.y = e.offsetY
+    state.mousePos.x = e.offsetX;
+    state.mousePos.y = e.offsetY;
   },
   false
 );
 
 // Probably renderer
 const ctx = canvas.getContext("2d");
-const board = new BoardView(ctx, new Vector(0, 0), Vector.div(res, 2), size);
+const board = new BoardView(ctx, new Vector(0, 0), res, size);
+
+const game = new Scene(
+  [board],
+  [
+    {
+      name: "blue",
+      src: BlueTile,
+    },
+    {
+      name: "green",
+      src: GreenTile,
+    },
+    {
+      name: "purple",
+      src: PurpleTile,
+    },
+    {
+      name: "yellow",
+      src: YellowTile,
+    },
+    {
+      name: "red",
+      src: RedTile,
+    },
+  ]
+);
+
+canvas.addEventListener(
+  "click",
+  (e) => {
+    const view = game.detectClick(new Vector(e.offsetX, e.offsetY));
+    if (view) view.handleClick();
+  },
+  false
+);
 
 const fps = 5;
 
 const render = () => {
-  board.clear();
-  board.update(state.tiles.flat());
-  board.render(state.mousePos);
-
+  game.clear();
+  game.render(state.mousePos);
 
   setTimeout(() => {
-    requestAnimationFrame(render);
+    //requestAnimationFrame(render);
   }, 1000 / fps);
 };
 
 (async () => {
-  await board.preload();
+  await game.preload();
+  game.update(state);
+
   render();
 })();
