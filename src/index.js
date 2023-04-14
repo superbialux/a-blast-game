@@ -18,7 +18,7 @@ import Score from "./assets/score.png";
 import Moves from "./assets/moves.png";
 
 import { getState, dispatch } from "./store";
-import { createTiles } from "./store/actions";
+import { changeScene, createTiles } from "./store/actions";
 import Progress from "./Views/Progress";
 
 const renderer = new Renderer(4 / 3, "2d");
@@ -26,7 +26,7 @@ const ctx = renderer.init();
 const size = new Vector(5, 5);
 
 const smallSide = Math.max(renderer.res.x, renderer.res.y);
-const square = new Vector(smallSide, smallSide)
+const square = new Vector(smallSide, smallSide);
 const tileSize = Vector.div(square, size.x + size.y);
 const border = smallSide * 0.01;
 
@@ -37,7 +37,10 @@ const board = new BoardView(ctx, boardPos, boardDim);
 const progressDim = Vector.mult(square, 0.35);
 const progress = new Progress(
   ctx,
-  new Vector(renderer.res.x - progressDim.x - border, renderer.res.y*0.5 - progressDim.y*0.5),
+  new Vector(
+    renderer.res.x - progressDim.x - border,
+    renderer.res.y * 0.5 - progressDim.y * 0.5
+  ),
   progressDim
 );
 
@@ -63,35 +66,49 @@ renderer.canvas.addEventListener(
   false
 );
 
-const game = new Scene();
+const gameViews = [board, progress];
 
-const render = () => {
-  game.clear();
+const gameAssets = [
+  {
+    name: "scoreBox",
+    src: ScoreBox,
+  },
+  {
+    name: "score",
+    src: Score,
+  },
+  {
+    name: "moves",
+    src: Moves,
+  },
+  { name: "board", src: BoardBG },
+  {
+    name: "blue",
+    src: BlueTile,
+  },
+  {
+    name: "green",
+    src: GreenTile,
+  },
+  {
+    name: "purple",
+    src: PurpleTile,
+  },
+  {
+    name: "yellow",
+    src: YellowTile,
+  },
+  {
+    name: "red",
+    src: RedTile,
+  },
+];
 
-  const animations = getState().animations.filter(({ finished }) => !finished);
-
-  for (const anim of animations) {
-    anim.run();
-  }
-
-  game.update();
-  game.render();
-
-  setTimeout(() => {
-    requestAnimationFrame(render);
-  }, 1000 / getState().fps);
-};
-
-(async () => {
-  dispatch(createTiles(size, board.dim, board.pos));
-
-  const tiles = getState()
-    .tiles.flat()
-    .map(
-      (tile) => new TileView(ctx, tile, board.boundaryMin, board.boundaryMax)
-    );
-  game.views = [board, progress, ...tiles]; //new Scene(
-  game.assets = [
+const game = new Scene("game", gameViews, gameAssets);
+const finish = new Scene(
+  "finish",
+  [progress],
+  [
     {
       name: "scoreBox",
       src: ScoreBox,
@@ -104,28 +121,25 @@ const render = () => {
       name: "moves",
       src: Moves,
     },
-    { name: "board", src: BoardBG },
-    {
-      name: "blue",
-      src: BlueTile,
-    },
-    {
-      name: "green",
-      src: GreenTile,
-    },
-    {
-      name: "purple",
-      src: PurpleTile,
-    },
-    {
-      name: "yellow",
-      src: YellowTile,
-    },
-    {
-      name: "red",
-      src: RedTile,
-    },
-  ];
+  ]
+);
+
+(async () => {
+  dispatch(createTiles(size, board.dim, board.pos));
+  getState()
+    .tiles.map(
+      (tile) => new TileView(ctx, tile, board.boundaryMin, board.boundaryMax)
+    )
+    .forEach((tile) => game.addView(tile));
+
   await game.preload();
-  render();
+  renderer.addScene(game);
+  renderer.addScene(finish);
+
+  renderer.render(() => {
+    if (getState().moves === 0) {
+      game.clear()
+      dispatch(changeScene('finish'))
+    }
+  }) ;
 })();

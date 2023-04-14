@@ -17,5 +17,9 @@ const queueAnimation = (anim) => ({
   payload: anim,
 })
 
+const changeScene = (scene) => ({
+  type: 'CHANGE_SCENE',
+  payload: scene
+})
 
-export { createTiles, destroyTile, refillBoard, queueAnimation };
+export { createTiles, destroyTile, refillBoard, queueAnimation, changeScene };

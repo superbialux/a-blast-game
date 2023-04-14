@@ -1,11 +1,14 @@
 class Scene {
-  constructor(views, assets) {
+  constructor(name, views, assets) {
+    this.name = name;
     this.views = views;
     this.assets = assets;
-    this.tasks = [];
-    this.lastActiveView;
   }
 
+  addView(view) {
+    this.views = [...this.views, view]
+  }
+  
   async preload() {
     const promises = [];
     for (const asset of this.assets) {

@@ -12,9 +12,10 @@ const indicesToCheck = [
 ];
 
 const initialState = {
-  fps: 60,
+  fps: 30,
   moves: 25,
   score: 0,
+  scene: "game",
   animations: [],
   tiles: [],
   tilesToDestroy: [],
@@ -24,9 +25,12 @@ const CREATE_TILES = "CREATE_TILES";
 const DESTROY_TILE = "DESTROY_TILE";
 const REFILL_BOARD = "REFILL_BOARD";
 const QUEUE_ANIMATION = "QUEUE_ANIMATION";
+const CHANGE_SCENE = "CHANGE_SCENE";
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
+    case CHANGE_SCENE:
+      return { ...state, scene: action.payload };
     case CREATE_TILES:
       const { size, dim, boardPos } = action.payload;
 
@@ -43,7 +47,7 @@ const reducer = (state = initialState, action) => {
       return { ...state, tiles: tiles.flat() };
     case DESTROY_TILE:
       const tile = action.payload;
-      const tilesToDestroy = [tile];
+      let tilesToDestroy = [tile];
 
       let i = 0;
       while (i < tilesToDestroy.length) {
@@ -73,28 +77,46 @@ const reducer = (state = initialState, action) => {
 
       const newAnimations = [];
 
-      tilesToDestroy.forEach((tile) => {
-        const originDim = tile.dim.copy();
-        const originPos = tile.pos.copy();
+      if (tilesToDestroy.length < 3) {
+        tilesToDestroy.forEach((tile) => {
+          const originDim = tile.dim.copy();
+          const originPos = tile.pos.copy();
 
-        const a = (timer) => {
-          tile.dim = Vector.add(
-            Vector.mult(tile.dim.copy(), 1 - timer),
-            Vector.mult(new Vector(0, 0), timer)
+          const a = (timer) => {
+            tile.dim = Vector.add(
+              Vector.mult(tile.dim.copy(), 1 - timer),
+              Vector.mult(new Vector(0, 0), timer)
+            );
+            tile.pos = Vector.add(
+              originPos,
+              Vector.sub(originDim, tile.dim).div(2)
+            );
+          };
+          newAnimations.push(
+            new Animation(a, 10, 0, () => {
+              tile.dim = originDim;
+              tile.pos = originPos;
+            })
           );
-          tile.pos = Vector.add(
-            originPos,
-            Vector.sub(originDim, tile.dim).div(2)
-          );
-        };
+        });
+      } else {
+        tilesToDestroy = tilesToDestroy.filter(({indices}) => !indices.isEqual(action.payload.indices))
+        tilesToDestroy.forEach((tile) => {
+          const originPos = tile.pos.copy();
 
-        newAnimations.push(
-          new Animation(a, 10, 0, () => {
-            tile.dim = originDim;
-            tile.pos = originPos;
-          })
-        );
-      });
+          const a = (timer) => {
+            tile.pos = Vector.add(
+              Vector.mult(originPos.copy(), 1 - timer),
+              Vector.mult(action.payload.pos.copy(), timer)
+            );
+          };
+          newAnimations.push(
+            new Animation(a, 10, 0, () => {
+              tile.pos = originPos;
+            })
+          );
+        });
+      }
 
       return {
         ...state,
