@@ -137,6 +137,10 @@ class Vector {
     this.y **= x;
     return this;
   }
+
+  isEqual(v) {
+    return this.x === v.x && this.y === v.y;
+  }
 }
 
 export default Vector;

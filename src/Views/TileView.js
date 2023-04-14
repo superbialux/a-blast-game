@@ -1,35 +1,43 @@
-import BoardController from "../Controllers/BoardController";
 import Vector from "../Math/Vector";
-import { dispatch } from "../store";
+import { dispatch, getState } from "../store";
+import { destroyTile, refillBoard } from "../store/actions";
 import View from "./View";
 
 class TileView extends View {
-  constructor(ctx, pos, dim, indices, type) {
-    super(ctx, pos, dim, "tile");
-    this.indices = indices;
-    this.img;
-    this.active = false;
+  constructor(ctx, tile) {
+    super(ctx, tile.pos, tile.dim, "tile");
 
-    this.dispatch = dispatch
-    this.type = type;
+    this.tile = tile;
+    this.dispatch = dispatch;
+
+    this.active = false;
+    this.img;
   }
 
   preload() {
-    this.img = this.assets.find((a) => a.name === this.type).src;
+    this.img = this.assets.find((a) => a.name === this.tile.type).src;
   }
 
   render() {
-    let dim = this.dim.copy()
-    let pos = this.pos.copy().add(Vector.sub(this.dim, dim).div(2));
+    let dim = this.tile.dim.copy();
+    let pos = this.tile.pos.copy().add(Vector.sub(this.tile.dim, dim).div(2));
     if (this.active) {
-      dim = this.dim.copy()
-      pos = this.pos;
+      dim = this.tile.dim.copy();
+      pos = this.tile.pos;
     }
     this.ctx.drawImage(this.img, pos.x, pos.y, dim.x, dim.y);
   }
 
+  update() {
+    this.preload();
+    this.tile = getState().tiles.find(({ indices }) =>
+      indices.isEqual(this.tile.indices)
+    );
+  }
+
   handleClick() {
-    BoardController.destroy(this);
+    dispatch(destroyTile(this.tile));
+    dispatch(refillBoard());
   }
 
   swap(tile) {

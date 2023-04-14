@@ -69,6 +69,12 @@ class Scene {
       view.render(mousePos);
     }
   }
+
+  update() {
+    for (const view of this.views) {
+      view.update();
+    }
+  }
 }
 
 export default Scene;

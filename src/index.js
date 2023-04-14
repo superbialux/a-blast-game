@@ -1,7 +1,6 @@
 import "normalize.css";
 import "./index.css";
 import Vector from "./Math/Vector";
-import BoardController from "./Controllers/BoardController";
 import BoardView from "./Views/BoardView";
 
 import Scene from "./Scene";
@@ -14,7 +13,7 @@ import TileView from "./Views/TileView";
 import Renderer from "./Renderer";
 
 import { getState, dispatch } from "./store";
-import createTiles from "./store/actions";
+import { createTiles } from "./store/actions";
 
 const renderer = new Renderer(1 / 1, "2d");
 const ctx = renderer.init();
@@ -39,10 +38,13 @@ renderer.canvas.addEventListener(
 
 const FPS = 5;
 const game = new Scene();
+
 const render = () => {
   game.clear();
-  game.render();
 
+  game.update();
+  game.render();
+  
   setTimeout(() => {
     requestAnimationFrame(render);
   }, 1000 / FPS);
@@ -50,13 +52,10 @@ const render = () => {
 
 (async () => {
   dispatch(createTiles(size, board.dim, board.pos));
-  
-  const tiles = getState().tiles
-    .flat()
-    .map(
-      ({ indices, type, pos, dim }) =>
-        new TileView(ctx, pos, dim, indices, type)
-    );
+
+  const tiles = getState()
+    .tiles.flat()
+    .map((tile) => new TileView(ctx, tile));
   game.views = [board, ...tiles]; //new Scene(
   game.assets = [
     {
