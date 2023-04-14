@@ -1,7 +1,7 @@
 import "normalize.css";
 import "./index.css";
 import Vector from "./Math/Vector";
-import BoardView from "./Views/BoardView";
+import BoardView from "./Views/Board";
 
 import Scene from "./Scene";
 import BlueTile from "./assets/blue.png";
@@ -9,16 +9,37 @@ import GreenTile from "./assets/green.png";
 import PurpleTile from "./assets/purple.png";
 import YellowTile from "./assets/yellow.png";
 import RedTile from "./assets/red.png";
-import TileView from "./Views/TileView";
+import TileView from "./Views/Tile";
 import Renderer from "./Renderer";
+import BoardBG from "./assets/board.png";
+
+import ScoreBox from "./assets/scoreBox.png";
+import Score from "./assets/score.png";
+import Moves from "./assets/moves.png";
 
 import { getState, dispatch } from "./store";
-import { clearAnimation, createTiles, increaseTimer } from "./store/actions";
+import { createTiles } from "./store/actions";
+import Progress from "./Views/Progress";
 
-const renderer = new Renderer(1 / 1, "2d");
+const renderer = new Renderer(4 / 3, "2d");
 const ctx = renderer.init();
-const size = new Vector(5, 5); // Setting: Board Size
-const board = new BoardView(ctx, new Vector(0, 0), Vector.div(renderer.res, 2), size);
+const size = new Vector(5, 5);
+
+const smallSide = Math.max(renderer.res.x, renderer.res.y);
+const square = new Vector(smallSide, smallSide)
+const tileSize = Vector.div(square, size.x + size.y);
+const border = smallSide * 0.01;
+
+const boardDim = Vector.mult(size, tileSize);
+const boardPos = new Vector(border, boardDim.y * 0.25);
+const board = new BoardView(ctx, boardPos, boardDim);
+
+const progressDim = Vector.mult(square, 0.35);
+const progress = new Progress(
+  ctx,
+  new Vector(renderer.res.x - progressDim.x - border, renderer.res.y*0.5 - progressDim.y*0.5),
+  progressDim
+);
 
 renderer.canvas.addEventListener(
   "click",
@@ -28,7 +49,7 @@ renderer.canvas.addEventListener(
     );
 
     if (animations.length > 0) return;
-    
+
     game.manageEvent("handleClick", new Vector(e.offsetX, e.offsetY));
   },
   false
@@ -66,9 +87,24 @@ const render = () => {
 
   const tiles = getState()
     .tiles.flat()
-    .map((tile) => new TileView(ctx, tile));
-  game.views = [board, ...tiles]; //new Scene(
+    .map(
+      (tile) => new TileView(ctx, tile, board.boundaryMin, board.boundaryMax)
+    );
+  game.views = [board, progress, ...tiles]; //new Scene(
   game.assets = [
+    {
+      name: "scoreBox",
+      src: ScoreBox,
+    },
+    {
+      name: "score",
+      src: Score,
+    },
+    {
+      name: "moves",
+      src: Moves,
+    },
+    { name: "board", src: BoardBG },
     {
       name: "blue",
       src: BlueTile,

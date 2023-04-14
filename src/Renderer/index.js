@@ -4,10 +4,11 @@ class Renderer {
   constructor(aspectRatio, context) {
     this.aspectRatio = aspectRatio;
     this.context = context;
-
+    
     const height = Math.min(window.innerHeight, window.innerWidth);
     const width = height * aspectRatio;
-    this.res = new Vector(height, width);
+
+    this.res = new Vector(width, height);
     this.canvas = document.createElement("canvas");
   }
 

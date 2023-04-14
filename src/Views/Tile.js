@@ -5,11 +5,14 @@ import { destroyTile, queueAnimation, refillBoard } from "../store/actions";
 import View from "./View";
 
 class TileView extends View {
-  constructor(ctx, tile) {
+  constructor(ctx, tile, boardBoundaryMin, boardBoundaryMax) {
     super(ctx, tile.pos, tile.dim, "tile");
 
     this.tile = tile;
     this.dispatch = dispatch;
+
+    this.boardBoundaryMin = boardBoundaryMin;
+    this.boardBoundaryMax = boardBoundaryMax;
 
     this.active = false;
     this.img;
@@ -23,7 +26,17 @@ class TileView extends View {
     let dim = this.tile.dim;
     let pos = this.tile.pos;
 
+    if (
+      !(pos.x >= this.boardBoundaryMin.x &&
+      pos.y >= this.boardBoundaryMin.y &&
+      Math.floor(pos.x + dim.x) <= this.boardBoundaryMax.x &&
+      Math.floor(pos.y + dim.y) <= this.boardBoundaryMax.y)
+    ) {
+      this.ctx.globalAlpha = 0.0;
+    }
+
     this.ctx.drawImage(this.img, pos.x, pos.y, dim.x, dim.y);
+    this.ctx.globalAlpha = 1.0;
   }
 
   update() {
@@ -35,7 +48,7 @@ class TileView extends View {
 
   handleClick() {
     dispatch(destroyTile(this.tile));
-    dispatch(refillBoard())
+    dispatch(refillBoard());
   }
 
   swap(tile) {

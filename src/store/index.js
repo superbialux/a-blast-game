@@ -13,7 +13,8 @@ const indicesToCheck = [
 
 const initialState = {
   fps: 60,
-  moves: [],
+  moves: 25,
+  score: 0,
   animations: [],
   tiles: [],
   tilesToDestroy: [],
@@ -95,7 +96,13 @@ const reducer = (state = initialState, action) => {
         );
       });
 
-      return { ...state, animations: [...state.animations, ...newAnimations], tilesToDestroy };
+      return {
+        ...state,
+        animations: [...state.animations, ...newAnimations],
+        tilesToDestroy,
+        score: state.score + tilesToDestroy.length,
+        moves: state.moves - 1,
+      };
 
     case REFILL_BOARD:
       let columns = [];
@@ -143,7 +150,7 @@ const reducer = (state = initialState, action) => {
               Vector.mult(endPos.copy(), timer)
             ));
           animations.push(
-            new Animation(pos, 5, 9, null, () => {
+            new Animation(pos, 8, 9, null, () => {
               if (swapTile) {
                 tile.type = swapTile.type;
                 startPos = swapTile.pos;
