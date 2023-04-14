@@ -1,5 +1,6 @@
 import Vector from "../Math/Vector";
-import TileController from "./TileController";
+import { types } from "../util/constants";
+import randEl from "../util/number";
 
 const indicesToCheck = [
   new Vector(0, 0),
@@ -87,22 +88,26 @@ class BoardController {
             indices.y === tile.indices.y - skipAbove
         );
 
-        let startPos = Vector.sub(tile.pos, new Vector(0, skipAbove*tile.dim.y));
+        let startPos = Vector.sub(
+          tile.pos,
+          new Vector(0, skipAbove * tile.dim.y)
+        );
         let endPos = tile.pos;
 
         if (swapTile) {
           tile.swap(swapTile);
-          tile.preload();
           startPos = swapTile.pos;
         } else {
-          tile.type = TileController.createTile();
+          tile.type = randEl(types);
         }
+        tile.preload();
+        tile.pos = startPos;
 
         state.dispatch({
           type: "animation",
           name: "addToQueue",
           params: {
-            startVal: startPos.copy(),
+            startVal: tile.pos.copy(),
             endVal: endPos.copy(),
             duration: 10,
             callback: (pos) => (tile.pos = pos),

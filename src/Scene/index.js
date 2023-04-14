@@ -6,7 +6,7 @@ class Scene {
     this.lastActiveView;
   }
 
-  preload() {
+  async preload() {
     const promises = [];
     for (const asset of this.assets) {
       const promise = new Promise((resolve, reject) => {
@@ -22,12 +22,11 @@ class Scene {
       promises.push(promise);
     }
 
-    return Promise.all(promises).then(() => {
-      for (const view of this.views) {
-        view.assets = this.assets;
-        view.preload();
-      }
-    });
+    await Promise.all(promises);
+    for (const view of this.views) {
+      view.assets = this.assets;
+      view.preload();
+    }
   }
 
   manageEvent(action, pos, state) {
@@ -69,16 +68,6 @@ class Scene {
     for (const view of this.views) {
       view.render(mousePos);
     }
-  }
-
-  update() {
-    for (const task of this.tasks) {
-      task();
-    }
-  }
-
-  addTask(task) {
-    this.tasks.push(task);
   }
 }
 

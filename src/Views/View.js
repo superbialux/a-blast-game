@@ -1,5 +1,6 @@
 import Vector from "../Math/Vector";
 import _ from "lodash";
+import store from "../store";
 
 class View {
   constructor(ctx, pos, dim, type) {
@@ -14,7 +15,7 @@ class View {
     this.assets = [];
 
     this.id = _.uniqueId();
-    this.viewType = type || 'common-view'
+    this.viewType = type || "common-view";
   }
 
   clear() {
@@ -29,7 +30,7 @@ class View {
 
   handleHover() {}
 
-  handleMouseLeave() {};
+  handleMouseLeave() {}
 
   preload() {}
 }

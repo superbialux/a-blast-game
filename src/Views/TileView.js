@@ -1,5 +1,6 @@
 import BoardController from "../Controllers/BoardController";
 import Vector from "../Math/Vector";
+import { dispatch } from "../store";
 import View from "./View";
 
 class TileView extends View {
@@ -9,6 +10,7 @@ class TileView extends View {
     this.img;
     this.active = false;
 
+    this.dispatch = dispatch
     this.type = type;
   }
 
@@ -17,24 +19,24 @@ class TileView extends View {
   }
 
   render() {
-    let dim = this.dim.copy().mult(0.98);
+    let dim = this.dim.copy()
     let pos = this.pos.copy().add(Vector.sub(this.dim, dim).div(2));
     if (this.active) {
-      dim = this.dim;
+      dim = this.dim.copy()
       pos = this.pos;
     }
     this.ctx.drawImage(this.img, pos.x, pos.y, dim.x, dim.y);
   }
 
-  handleClick(state) {
-    state.dispatch({ type: "board", name: "destroy", params: this });
+  handleClick() {
+    BoardController.destroy(this);
   }
 
   swap(tile) {
     this.type = tile.type;
   }
 
-  handleHover(state) {
+  handleHover() {
     this.active = true;
   }
 
