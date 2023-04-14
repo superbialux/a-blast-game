@@ -1,3 +1,4 @@
+import Animation from "../Animation";
 import Vector from "../Math/Vector";
 import { types } from "../util/constants";
 import randEl from "../util/number";
@@ -11,8 +12,9 @@ const indicesToCheck = [
 ];
 
 const initialState = {
+  fps: 60,
   moves: [],
-  animationQueue: [],
+  animations: [],
   tiles: [],
   tilesToDestroy: [],
 };
@@ -20,6 +22,7 @@ const initialState = {
 const CREATE_TILES = "CREATE_TILES";
 const DESTROY_TILE = "DESTROY_TILE";
 const REFILL_BOARD = "REFILL_BOARD";
+const QUEUE_ANIMATION = "QUEUE_ANIMATION";
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
@@ -67,7 +70,32 @@ const reducer = (state = initialState, action) => {
       }
       if (tilesToDestroy.length === 1) return state;
 
-      return { ...state, tilesToDestroy };
+      const newAnimations = [];
+
+      tilesToDestroy.forEach((tile) => {
+        const originDim = tile.dim.copy();
+        const originPos = tile.pos.copy();
+
+        const a = (timer) => {
+          tile.dim = Vector.add(
+            Vector.mult(tile.dim.copy(), 1 - timer),
+            Vector.mult(new Vector(0, 0), timer)
+          );
+          tile.pos = Vector.add(
+            originPos,
+            Vector.sub(originDim, tile.dim).div(2)
+          );
+        };
+
+        newAnimations.push(
+          new Animation(a, 10, 0, () => {
+            tile.dim = originDim;
+            tile.pos = originPos;
+          })
+        );
+      });
+
+      return { ...state, animations: [...state.animations, ...newAnimations], tilesToDestroy };
 
     case REFILL_BOARD:
       let columns = [];
@@ -87,7 +115,7 @@ const reducer = (state = initialState, action) => {
           ];
         }
       });
-
+      const animations = [];
       columns.forEach((col) => {
         const skipAbove = col.length + 1;
 
@@ -109,28 +137,33 @@ const reducer = (state = initialState, action) => {
           );
           let endPos = tile.pos;
 
-          if (swapTile) {
-            tile.type = swapTile.type;
-            //startPos = swapTile.pos;
-          } else {
-            tile.type = randEl(types);
-          }
-          //tile.pos = startPos;
-
-          // state.dispatch({
-          //   type: "animation",
-          //   name: "addToQueue",
-          //   params: {
-          //     startVal: tile.pos.copy(),
-          //     endVal: endPos.copy(),
-          //     duration: 10,
-          //     callback: (pos) => (tile.pos = pos),
-          //   },
-          // });
+          const pos = (timer) =>
+            (tile.pos = Vector.add(
+              Vector.mult(startPos.copy(), 1 - timer),
+              Vector.mult(endPos.copy(), timer)
+            ));
+          animations.push(
+            new Animation(pos, 5, 9, null, () => {
+              if (swapTile) {
+                tile.type = swapTile.type;
+                startPos = swapTile.pos;
+              } else {
+                tile.type = randEl(types);
+              }
+              tile.pos = startPos;
+            })
+          );
         }
       });
 
-      return { ...state, tilesToDestroy: [] };
+      return {
+        ...state,
+        animations: [...state.animations, ...animations],
+        tilesToDestroy: [],
+      };
+
+    case QUEUE_ANIMATION:
+      return { ...state, animations: [...state.animations, action.payload] };
 
     default:
       return state;

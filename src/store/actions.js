@@ -12,4 +12,10 @@ const refillBoard = (tile) => ({
   type: "REFILL_BOARD",
 });
 
-export { createTiles, destroyTile, refillBoard };
+const queueAnimation = (anim) => ({
+  type: 'QUEUE_ANIMATION',
+  payload: anim,
+})
+
+
+export { createTiles, destroyTile, refillBoard, queueAnimation };

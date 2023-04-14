@@ -13,16 +13,22 @@ import TileView from "./Views/TileView";
 import Renderer from "./Renderer";
 
 import { getState, dispatch } from "./store";
-import { createTiles } from "./store/actions";
+import { clearAnimation, createTiles, increaseTimer } from "./store/actions";
 
 const renderer = new Renderer(1 / 1, "2d");
 const ctx = renderer.init();
-const size = new Vector(8, 8); // Setting: Board Size
-const board = new BoardView(ctx, new Vector(0, 0), renderer.res, size);
+const size = new Vector(5, 5); // Setting: Board Size
+const board = new BoardView(ctx, new Vector(0, 0), Vector.div(renderer.res, 2), size);
 
 renderer.canvas.addEventListener(
   "click",
   (e) => {
+    const animations = getState().animations.filter(
+      ({ finished }) => !finished
+    );
+
+    if (animations.length > 0) return;
+    
     game.manageEvent("handleClick", new Vector(e.offsetX, e.offsetY));
   },
   false
@@ -36,18 +42,23 @@ renderer.canvas.addEventListener(
   false
 );
 
-const FPS = 5;
 const game = new Scene();
 
 const render = () => {
   game.clear();
 
+  const animations = getState().animations.filter(({ finished }) => !finished);
+
+  for (const anim of animations) {
+    anim.run();
+  }
+
   game.update();
   game.render();
-  
+
   setTimeout(() => {
     requestAnimationFrame(render);
-  }, 1000 / FPS);
+  }, 1000 / getState().fps);
 };
 
 (async () => {

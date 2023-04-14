@@ -1,6 +1,7 @@
+import Animation from "../Animation";
 import Vector from "../Math/Vector";
 import { dispatch, getState } from "../store";
-import { destroyTile, refillBoard } from "../store/actions";
+import { destroyTile, queueAnimation, refillBoard } from "../store/actions";
 import View from "./View";
 
 class TileView extends View {
@@ -19,12 +20,9 @@ class TileView extends View {
   }
 
   render() {
-    let dim = this.tile.dim.copy();
-    let pos = this.tile.pos.copy().add(Vector.sub(this.tile.dim, dim).div(2));
-    if (this.active) {
-      dim = this.tile.dim.copy();
-      pos = this.tile.pos;
-    }
+    let dim = this.tile.dim;
+    let pos = this.tile.pos;
+
     this.ctx.drawImage(this.img, pos.x, pos.y, dim.x, dim.y);
   }
 
@@ -37,7 +35,7 @@ class TileView extends View {
 
   handleClick() {
     dispatch(destroyTile(this.tile));
-    dispatch(refillBoard());
+    dispatch(refillBoard())
   }
 
   swap(tile) {
