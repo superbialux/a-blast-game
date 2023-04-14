@@ -2,6 +2,8 @@ class Scene {
   constructor(views, assets) {
     this.views = views;
     this.assets = assets;
+    this.tasks = [];
+    this.lastActiveView;
   }
 
   preload() {
@@ -11,7 +13,7 @@ class Scene {
         const img = new Image();
         img.onerror = reject;
         img.src = asset.src;
-        
+
         img.onload = () => {
           asset.src = img;
           resolve();
@@ -20,24 +22,40 @@ class Scene {
       promises.push(promise);
     }
 
-    const p = Promise.all(promises);
-    p.then(() => {
+    return Promise.all(promises).then(() => {
       for (const view of this.views) {
         view.assets = this.assets;
+        view.preload();
       }
     });
-    return p;
   }
 
-  detectClick(pos) {
+  manageEvent(action, pos, state) {
+    let activeView;
+
     for (const view of this.views) {
       if (
         pos.x > view.boundaryMin.x &&
         pos.x < view.boundaryMax.x &&
         pos.y > view.boundaryMin.y &&
         pos.y < view.boundaryMax.y
-      )
-        return view;
+      ) {
+        if (!activeView) {
+          activeView = view;
+          continue;
+        }
+
+        if (view.area > activeView.area) continue;
+
+        activeView = view;
+      }
+    }
+
+    if (this.lastActiveView) this.lastActiveView.handleMouseLeave();
+
+    if (activeView) {
+      activeView[action](state, pos);
+      this.lastActiveView = activeView;
     }
   }
 
@@ -47,16 +65,20 @@ class Scene {
     }
   }
 
-  update(state) {
-    for (const view of this.views) {
-      view.update(state);
-    }
-  }
-
   render(mousePos) {
     for (const view of this.views) {
       view.render(mousePos);
     }
+  }
+
+  update() {
+    for (const task of this.tasks) {
+      task();
+    }
+  }
+
+  addTask(task) {
+    this.tasks.push(task);
   }
 }
 

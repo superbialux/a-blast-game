@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "css-loader": "^6.7.3",
+    "lodash": "^4.17.21",
     "normalize.css": "^8.0.1",
     "style-loader": "^3.3.2"
   }
