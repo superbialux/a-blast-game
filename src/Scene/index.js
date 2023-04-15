@@ -67,9 +67,9 @@ class Scene {
     }
   }
 
-  render(mousePos) {
+  render() {
     for (const view of this.views) {
-      view.render(mousePos);
+      view.render();
     }
   }
 

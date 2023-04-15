@@ -7,6 +7,7 @@ import {
   DESTROY_TILES,
   QUEUE_ANIMATION,
   REFILL_BOARD,
+  UPDATE_TILE,
 } from "./types";
 
 const initialState = {
@@ -27,7 +28,7 @@ const reducer = (state = initialState, action) => {
 
     case DESTROY_TILES:
       const clickedTile = action.payload;
-      const tilesToDestroy = [clickedTile];
+      let tilesToDestroy = [clickedTile];
 
       for (const tile of tilesToDestroy) {
         const behavior = tileBehavior[tile.behavior];
@@ -63,12 +64,22 @@ const reducer = (state = initialState, action) => {
       if (tilesToDestroy.length > settings.superTileThreshold) {
         allTiles = allTiles.map((tile) =>
           tile.indices.isEqual(clickedTile.indices)
-            ? { ...clickedTile, behavior: "super" }
+            ? { ...tile, behavior: "super" }
             : tile
+        );
+        tilesToDestroy = tilesToDestroy.filter(
+          ({ indices }) => !indices.isEqual(clickedTile.indices)
         );
       }
 
       return { ...state, tiles: allTiles, tilesToDestroy };
+
+    case UPDATE_TILE:
+      const updatedTile = action.payload;
+      const tiles = state.tiles.slice().map((tile) =>
+        tile.indices.isEqual(updatedTile.indices) ? updatedTile : tile
+      );
+      return { ...state, tiles };
 
     case REFILL_BOARD:
       return state;

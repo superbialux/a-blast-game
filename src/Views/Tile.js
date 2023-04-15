@@ -1,7 +1,13 @@
 import Animation from "../Animation";
 import Vector from "../Math/Vector";
 import { dispatch, getState } from "../store";
-import { destroyTiles, queueAnimation, refillBoard } from "../store/actions";
+import {
+  destroyTiles,
+  queueAnimation,
+  refillBoard,
+  updateTile,
+} from "../store/actions";
+import { settings } from "../util/constants";
 import View from "./View";
 
 class TileView extends View {
@@ -15,6 +21,7 @@ class TileView extends View {
     this.boardBoundaryMax = boardBoundaryMax;
 
     this.active = false;
+    this.isVisible = true;
     this.img;
   }
 
@@ -37,12 +44,14 @@ class TileView extends View {
       this.ctx.clearRect(this.pos.x, this.pos.y, this.dim.x, this.dim.y);
     }
 
-    this.ctx.drawImage(this.img, pos.x, pos.y, dim.x, dim.y);
+    if (this.isVisible)
+      this.ctx.drawImage(this.img, pos.x, pos.y, dim.x, dim.y);
     this.ctx.globalAlpha = 1.0;
   }
 
   update() {
     this.preload();
+    // Keep reference to the array in the store
     this.tile = getState().tiles.find(({ indices }) =>
       indices.isEqual(this.tile.indices)
     );
@@ -50,12 +59,45 @@ class TileView extends View {
 
   handleClick() {
     dispatch(destroyTiles(this.tile));
-    for (const tile of getState().tilesToDestroy) {
+    const tiles = getState().tilesToDestroy;
+
+    for (const tile of tiles) {
+      const origPos = tile.pos.copy();
+      const origDim = tile.dim.copy();
+
       const callback = (progress) => {
-        tile.dim.div(2);
-      }
-      const animation = new Animation(callback, 5)
-      dispatch(queueAnimation(animation))
+        let { pos, dim } = tile;
+        if (this.tile.behavior === "super") {
+          pos = Vector.add(
+            Vector.mult(tile.pos, 1 - progress),
+            Vector.mult(this.tile.pos, progress)
+          );
+        } else {
+          dim = Vector.mult(tile.dim, 1 - progress);
+          pos = Vector.add(origPos, Vector.div(origDim, 2)).sub(
+            Vector.div(dim, 2)
+          );
+        }
+
+        dispatch(
+          updateTile({
+            ...tile,
+            pos,
+            dim,
+          })
+        );
+      };
+
+      const animation = new Animation(callback, 5, () =>
+        dispatch(
+          updateTile({
+            ...tile,
+            pos: origPos,
+            dim: origDim,
+          })
+        )
+      );
+      dispatch(queueAnimation(animation));
     }
 
     //dispatch(refillBoard());

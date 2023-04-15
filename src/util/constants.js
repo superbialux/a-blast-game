@@ -11,7 +11,7 @@ const settings = {
   aspectRatio: 1 / 1,
   fps: 5,
   size: new Vector(5, 5),
-  superTileThreshold: 3, // if destroyed more than x, activate super tile
+  superTileThreshold: 2, // if destroyed more than x, activate super tile
   minTiles: 2, // if surrounding tiles of the same type is less than 2 then do nothing
 };
 
