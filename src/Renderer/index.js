@@ -1,13 +1,13 @@
 import Vector from "../Math/Vector";
 import { getState } from "../store";
+import { settings } from "../util/constants";
 
 class Renderer {
-  constructor(aspectRatio, context) {
-    this.aspectRatio = aspectRatio;
+  constructor(context) {
     this.context = context;
 
     const height = Math.min(window.innerHeight, window.innerWidth);
-    const width = height * aspectRatio;
+    const width = height * settings.aspectRatio;
 
     this.res = new Vector(width, height);
     this.canvas = document.createElement("canvas");
@@ -51,7 +51,7 @@ class Renderer {
 
     setTimeout(() => {
       requestAnimationFrame(() => this.render(callback));
-    }, 1000 / getState().fps);
+    }, 1000 / settings.fps);
   }
 }
 

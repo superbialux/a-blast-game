@@ -1,18 +1,15 @@
-import Animation from "../Animation";
 import Vector from "../Math/Vector";
-import { types } from "../util/constants";
+import { settings, tileBehavior, types } from "../util/constants";
 import randEl from "../util/number";
-
-const indicesToCheck = [
-  new Vector(0, 0),
-  new Vector(0, -1),
-  new Vector(1, 0),
-  new Vector(0, 1),
-  new Vector(-1, 0),
-];
+import {
+  CHANGE_SCENE,
+  CREATE_TILES,
+  DESTROY_TILES,
+  QUEUE_ANIMATION,
+  REFILL_BOARD,
+} from "./types";
 
 const initialState = {
-  fps: 30,
   moves: 25,
   score: 0,
   scene: "game",
@@ -21,175 +18,60 @@ const initialState = {
   tilesToDestroy: [],
 };
 
-const CREATE_TILES = "CREATE_TILES";
-const DESTROY_TILE = "DESTROY_TILE";
-const REFILL_BOARD = "REFILL_BOARD";
-const QUEUE_ANIMATION = "QUEUE_ANIMATION";
-const CHANGE_SCENE = "CHANGE_SCENE";
-
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case CHANGE_SCENE:
       return { ...state, scene: action.payload };
     case CREATE_TILES:
-      const { size, dim, boardPos } = action.payload;
+      return { ...state, tiles: action.payload };
 
-      const tiles = Array.from({ length: size.x }, (_, x) =>
-        Array.from({ length: size.y }, (_, y) => {
-          const indices = new Vector(x, y);
-          const type = randEl(types);
-          const tileSize = Vector.div(dim, size);
-          const pos = Vector.mult(indices, tileSize).add(boardPos);
+    case DESTROY_TILES:
+      const clickedTile = action.payload;
+      const tilesToDestroy = [clickedTile];
 
-          return { indices, type, pos, dim: tileSize };
-        })
-      );
-      return { ...state, tiles: tiles.flat() };
-    case DESTROY_TILE:
-      const tile = action.payload;
-      let tilesToDestroy = [tile];
+      for (const tile of tilesToDestroy) {
+        const behavior = tileBehavior[tile.behavior];
 
-      let i = 0;
-      while (i < tilesToDestroy.length) {
-        for (const index of indicesToCheck) {
-          const currentIndices = tilesToDestroy[i].indices;
-          const indices = Vector.sub(currentIndices, index);
-          const newTile = state.tiles.find(({ indices: ind }) =>
-            ind.isEqual(indices)
+        behavior.indices.forEach((index) => {
+          // Check if neighbouring tile is to be destroyed
+          const neighbor = state.tiles.find(
+            ({ indices }) =>
+              indices && indices.isEqual(Vector.add(tile.indices, index))
           );
 
+          if (!neighbor) return; // does exist
+          if (behavior.checkType && tile.type !== neighbor.type) return; // is of the same type
+          // is not already in the array
           if (
-            !newTile ||
-            newTile.type !== tile.type ||
-            tilesToDestroy.find(
-              ({ indices }) =>
-                indices.x === newTile.indices.x &&
-                indices.y === newTile.indices.y
+            !tilesToDestroy.find(({ indices }) =>
+              indices.isEqual(neighbor.indices)
             )
           )
-            continue;
-
-          tilesToDestroy.push(newTile);
-        }
-        i++;
-      }
-      if (tilesToDestroy.length === 1) return state;
-
-      const newAnimations = [];
-
-      if (tilesToDestroy.length < 3) {
-        tilesToDestroy.forEach((tile) => {
-          const originDim = tile.dim.copy();
-          const originPos = tile.pos.copy();
-
-          const a = (timer) => {
-            tile.dim = Vector.add(
-              Vector.mult(tile.dim.copy(), 1 - timer),
-              Vector.mult(new Vector(0, 0), timer)
-            );
-            tile.pos = Vector.add(
-              originPos,
-              Vector.sub(originDim, tile.dim).div(2)
-            );
-          };
-          newAnimations.push(
-            new Animation(a, 10, 0, () => {
-              tile.dim = originDim;
-              tile.pos = originPos;
-            })
-          );
-        });
-      } else {
-        tilesToDestroy = tilesToDestroy.filter(({indices}) => !indices.isEqual(action.payload.indices))
-        tilesToDestroy.forEach((tile) => {
-          const originPos = tile.pos.copy();
-
-          const a = (timer) => {
-            tile.pos = Vector.add(
-              Vector.mult(originPos.copy(), 1 - timer),
-              Vector.mult(action.payload.pos.copy(), timer)
-            );
-          };
-          newAnimations.push(
-            new Animation(a, 10, 0, () => {
-              tile.pos = originPos;
-            })
-          );
+            tilesToDestroy.push(neighbor);
         });
       }
 
-      return {
-        ...state,
-        animations: [...state.animations, ...newAnimations],
-        tilesToDestroy,
-        score: state.score + tilesToDestroy.length,
-        moves: state.moves - 1,
-      };
+      if (
+        clickedTile.behavior === "normal" &&
+        tilesToDestroy.length < settings.minTiles
+      )
+        return state; // should not check if the tile is super
+
+      let allTiles = state.tiles.slice();
+
+      // Convert to super tile
+      if (tilesToDestroy.length > settings.superTileThreshold) {
+        allTiles = allTiles.map((tile) =>
+          tile.indices.isEqual(clickedTile.indices)
+            ? { ...clickedTile, behavior: "super" }
+            : tile
+        );
+      }
+
+      return { ...state, tiles: allTiles, tilesToDestroy };
 
     case REFILL_BOARD:
-      let columns = [];
-
-      // Find out how many in a column was destroyed and the last tile for refilling the board
-      state.tilesToDestroy.forEach((tile) => {
-        const col = columns.find(({ key }) => key === tile.indices.x);
-        if (col) {
-          if (tile.indices.y > col.lastYIndex) {
-            col.lastYIndex = tile.indices.y;
-          }
-          col.length++;
-        } else {
-          columns = [
-            ...columns,
-            { key: tile.indices.x, length: 0, lastYIndex: tile.indices.y },
-          ];
-        }
-      });
-      const animations = [];
-      columns.forEach((col) => {
-        const skipAbove = col.length + 1;
-
-        const tilesToSwap = state.tiles.filter(
-          ({ indices }) => indices.x === col.key && indices.y <= col.lastYIndex
-        );
-
-        for (let i = tilesToSwap.length - 1; i >= 0; i--) {
-          const tile = tilesToSwap[i];
-          const swapTile = tilesToSwap.find(
-            ({ indices }) =>
-              indices.x === tile.indices.x &&
-              indices.y === tile.indices.y - skipAbove
-          );
-
-          let startPos = Vector.sub(
-            tile.pos,
-            new Vector(0, skipAbove * tile.dim.y)
-          );
-          let endPos = tile.pos;
-
-          const pos = (timer) =>
-            (tile.pos = Vector.add(
-              Vector.mult(startPos.copy(), 1 - timer),
-              Vector.mult(endPos.copy(), timer)
-            ));
-          animations.push(
-            new Animation(pos, 8, 9, null, () => {
-              if (swapTile) {
-                tile.type = swapTile.type;
-                startPos = swapTile.pos;
-              } else {
-                tile.type = randEl(types);
-              }
-              tile.pos = startPos;
-            })
-          );
-        }
-      });
-
-      return {
-        ...state,
-        animations: [...state.animations, ...animations],
-        tilesToDestroy: [],
-      };
+      return state;
 
     case QUEUE_ANIMATION:
       return { ...state, animations: [...state.animations, action.payload] };

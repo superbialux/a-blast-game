@@ -1,7 +1,7 @@
 import Animation from "../Animation";
 import Vector from "../Math/Vector";
 import { dispatch, getState } from "../store";
-import { destroyTile, queueAnimation, refillBoard } from "../store/actions";
+import { destroyTiles, queueAnimation, refillBoard } from "../store/actions";
 import View from "./View";
 
 class TileView extends View {
@@ -23,16 +23,18 @@ class TileView extends View {
   }
 
   render() {
-    let dim = this.tile.dim;
-    let pos = this.tile.pos;
+    const dim = this.tile.dim;
+    const pos = this.tile.pos;
 
     if (
-      !(pos.x >= this.boardBoundaryMin.x &&
-      pos.y >= this.boardBoundaryMin.y &&
-      Math.floor(pos.x + dim.x) <= this.boardBoundaryMax.x &&
-      Math.floor(pos.y + dim.y) <= this.boardBoundaryMax.y)
+      !(
+        pos.x >= this.boardBoundaryMin.x &&
+        pos.y >= this.boardBoundaryMin.y &&
+        Math.floor(pos.x + dim.x) <= this.boardBoundaryMax.x &&
+        Math.floor(pos.y + dim.y) <= this.boardBoundaryMax.y
+      )
     ) {
-      this.ctx.globalAlpha = 0.0;
+      this.ctx.clearRect(this.pos.x, this.pos.y, this.dim.x, this.dim.y);
     }
 
     this.ctx.drawImage(this.img, pos.x, pos.y, dim.x, dim.y);
@@ -47,8 +49,16 @@ class TileView extends View {
   }
 
   handleClick() {
-    dispatch(destroyTile(this.tile));
-    dispatch(refillBoard());
+    dispatch(destroyTiles(this.tile));
+    for (const tile of getState().tilesToDestroy) {
+      const callback = (progress) => {
+        tile.dim.div(2);
+      }
+      const animation = new Animation(callback, 5)
+      dispatch(queueAnimation(animation))
+    }
+
+    //dispatch(refillBoard());
   }
 
   swap(tile) {

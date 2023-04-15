@@ -1,24 +1,17 @@
-import { getState } from "../store";
+import { settings } from "../util/constants";
 
 class Animation {
-  constructor(callback, duration, delay, onFinish, onStart) {
+  constructor(callback, duration, onFinish) {
     this.callback = callback;
-    this.fps = getState().fps;
+    this.fps = settings.fps;
     this.duration = duration;
     this.finished = false;
-    this.timer = -delay || 0;
+    this.timer = 0;
     this.onFinish = onFinish;
-    this.onStart = onStart;
-
-    this.onStartInit = false;
   }
 
   run() {
     if (this.timer > 0) {
-      if (this.onStart && !this.onStartInit) {
-        this.onStartInit = true;
-        this.onStart();
-      }
       const perc = this.timer / this.duration;
       this.callback(perc);
 

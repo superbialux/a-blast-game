@@ -20,17 +20,17 @@ import Moves from "./assets/moves.png";
 import { getState, dispatch } from "./store";
 import { changeScene, createTiles } from "./store/actions";
 import Progress from "./Views/Progress";
+import { settings } from "./util/constants";
 
-const renderer = new Renderer(4 / 3, "2d");
+const renderer = new Renderer("2d");
 const ctx = renderer.init();
-const size = new Vector(5, 5);
 
 const smallSide = Math.max(renderer.res.x, renderer.res.y);
 const square = new Vector(smallSide, smallSide);
-const tileSize = Vector.div(square, size.x + size.y);
+const tileSize = Vector.div(square, settings.size.x + settings.size.y);
 const border = smallSide * 0.01;
 
-const boardDim = Vector.mult(size, tileSize);
+const boardDim = Vector.mult(settings.size, tileSize);
 const boardPos = new Vector(border, boardDim.y * 0.25);
 const board = new BoardView(ctx, boardPos, boardDim);
 
@@ -125,7 +125,7 @@ const finish = new Scene(
 );
 
 (async () => {
-  dispatch(createTiles(size, board.dim, board.pos));
+  dispatch(createTiles(settings.size, board.dim, board.pos));
   getState()
     .tiles.map(
       (tile) => new TileView(ctx, tile, board.boundaryMin, board.boundaryMax)
