@@ -1,5 +1,6 @@
 import Vector from "../Math/Vector";
-import { getState } from "../store";
+import { dispatch, getState } from "../store";
+import { onAllAnimationEnd } from "../store/actions";
 import { settings } from "../util/constants";
 
 class Renderer {
@@ -12,6 +13,7 @@ class Renderer {
     this.res = new Vector(width, height);
     this.canvas = document.createElement("canvas");
     this.scenes = [];
+    this.scene;
   }
 
   init() {
@@ -31,10 +33,18 @@ class Renderer {
     this.scenes = [...this.scenes, scene];
   }
 
-  render(callback) {
-    const scene = this.scenes.find(({ name }) => name === getState().scene);
+  manageEvent(action, pos) {
+    if (!this.scene) return;
+    this.scene.manageEvent(action, pos);
+  }
 
-    scene.clear();
+  update() {
+    this.scene = this.scenes.find(({ name }) => name === getState().scene);
+  }
+
+  render(callback) {
+    if (!this.scene) return;
+    this.scene.clear();
 
     const animations = getState().animations.filter(
       ({ finished }) => !finished
@@ -44,8 +54,13 @@ class Renderer {
       anim.run();
     }
 
-    scene.update();
-    scene.render();
+    if (!animations.length && getState().onAllAnimationEnd) {
+      getState().onAllAnimationEnd();
+      dispatch(onAllAnimationEnd(null));
+    }
+
+    this.scene.update();
+    this.scene.render();
 
     if (callback) callback();
 

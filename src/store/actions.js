@@ -2,17 +2,23 @@ import Vector from "../Math/Vector";
 import { types } from "../util/constants";
 import randEl from "../util/number";
 
-const createTiles = (size, dim, boardPos) => {
+const createTiles = (size, boardPos, dim) => {
   const tiles = Array.from({ length: size.x }, (_, x) =>
     Array.from({ length: size.y }, (_, y) => {
       const indices = new Vector(x, y);
       const tileSize = Vector.div(dim, size);
+      const pos = Vector.mult(indices, tileSize).add(boardPos);
       return {
         indices,
         type: randEl(types),
         behavior: "normal",
-        pos: Vector.mult(indices, tileSize).add(boardPos),
+        pos,
         dim: tileSize,
+        pair: null,
+        toDestroy: false,
+        render: true,
+        origPos: pos.copy(),
+        origDim: tileSize.copy(),
       };
     })
   );
@@ -46,11 +52,17 @@ const changeScene = (scene) => ({
   payload: scene,
 });
 
+const onAllAnimationEnd = (callback) => ({
+  type: "ON_ALL_ANIMATION_END",
+  payload: callback,
+});
+
 export {
   createTiles,
   destroyTiles,
   updateTile,
   refillBoard,
   queueAnimation,
+  onAllAnimationEnd,
   changeScene,
 };

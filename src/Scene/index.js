@@ -1,14 +1,18 @@
 class Scene {
-  constructor(name, views, assets) {
+  constructor(name) {
     this.name = name;
-    this.views = views;
-    this.assets = assets;
+    this.views = [];
+    this.assets = [];
   }
 
   addView(view) {
-    this.views = [...this.views, view]
+    this.views = [...this.views, view];
   }
-  
+
+  addAsset(asset) {
+    this.assets = [...this.assets, asset];
+  }
+
   async preload() {
     const promises = [];
     for (const asset of this.assets) {
@@ -26,6 +30,9 @@ class Scene {
     }
 
     await Promise.all(promises);
+  }
+
+  propagateAssets() {
     for (const view of this.views) {
       view.assets = this.assets;
       view.preload();

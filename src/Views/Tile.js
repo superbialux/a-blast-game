@@ -3,6 +3,7 @@ import Vector from "../Math/Vector";
 import { dispatch, getState } from "../store";
 import {
   destroyTiles,
+  onAllAnimationEnd,
   queueAnimation,
   refillBoard,
   updateTile,
@@ -44,8 +45,7 @@ class TileView extends View {
       this.ctx.clearRect(this.pos.x, this.pos.y, this.dim.x, this.dim.y);
     }
 
-    if (this.isVisible)
-      this.ctx.drawImage(this.img, pos.x, pos.y, dim.x, dim.y);
+    this.ctx.drawImage(this.img, pos.x, pos.y, dim.x, dim.y);
     this.ctx.globalAlpha = 1.0;
   }
 
@@ -59,9 +59,9 @@ class TileView extends View {
 
   handleClick() {
     dispatch(destroyTiles(this.tile));
-    const tiles = getState().tilesToDestroy;
-
+    const tiles = getState().tiles;
     for (const tile of tiles) {
+      if (!tile.toDestroy) continue;
       const origPos = tile.pos.copy();
       const origDim = tile.dim.copy();
 
@@ -88,31 +88,81 @@ class TileView extends View {
         );
       };
 
-      const animation = new Animation(callback, 5, () =>
-        dispatch(
-          updateTile({
-            ...tile,
-            pos: origPos,
-            dim: origDim,
-          })
-        )
-      );
+      const animation = new Animation(callback, 5);
       dispatch(queueAnimation(animation));
     }
 
-    //dispatch(refillBoard());
-  }
+    dispatch(
+      onAllAnimationEnd(() => {
+        dispatch(refillBoard());
+        getState().tiles.forEach((tile) => {
+          if (!tile.pair) return;
+          const startPos = tile.pair.pos.copy();
+          const endPos = tile.origPos.copy();
 
-  swap(tile) {
-    this.type = tile.type;
-  }
+          dispatch(
+            updateTile({
+              ...tile,
+              dim: tile.origDim,
+              pos: startPos,
+              //render: true,
+            })
+          );
+          console.log(startPos, endPos)
 
-  handleHover() {
-    this.active = true;
-  }
+          // const callback = (progress) => {
+          //   dispatch(
+          //     updateTile({
+          //       ...tile,
+          //       pos: Vector.add(
+          //         Vector.mult(startPos, 1 - progress),
+          //         Vector.mult(endPos, progress)
+          //       ),
+          //     })
+          //   );
+          // };
+          // const animation = new Animation(callback, 5);
+          // dispatch(queueAnimation(animation));
+        });
+      })
+    );
 
-  handleMouseLeave() {
-    this.active = false;
+    // TODO: Refactor -- kind of cumbersome
+    // dispatch(
+    //   onAllAnimationEnd(() => {
+    //     beforeAnim.forEach((f) => f());
+    //     dispatch(refillBoard());
+    //     // getState().tilePairings.forEach(({ tile: tileToSwap, swapTile }) => {
+    //     //   const tile = getState().tiles.find(({ indices }) =>
+    //     //     indices.isEqual(tileToSwap.indices)
+    //     //   );
+
+    //     //   const origPos = tile.pos.copy();
+
+    //     //   dispatch(
+    //     //     updateTile({
+    //     //       ...tile,
+    //     //       pos: swapTile.pos,
+    //     //     })
+    //     //   );
+
+    //     //   const callback = (progress) => {
+    //     //     dispatch(
+    //     //       updateTile({
+    //     //         ...tile,
+    //     //         pos: Vector.add(
+    //     //           Vector.mult(swapTile.pos.copy(), 1 - progress),
+    //     //           Vector.mult(origPos.copy(), progress)
+    //     //         ),
+    //     //       })
+    //     //     );
+    //     //   };
+
+    //     //   const animation = new Animation(callback, 5);
+    //     //   dispatch(queueAnimation(animation));
+    //     // });
+    //   })
+    // );
   }
 }
 

@@ -15,7 +15,7 @@ class Animation {
       const perc = this.timer / this.duration;
       this.callback(perc);
 
-      if (perc > 1.0) {
+      if (perc >= 1.0) {
         this.finished = true;
         if (this.onFinish) this.onFinish();
       }
