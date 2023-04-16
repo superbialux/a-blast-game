@@ -3,6 +3,7 @@ import GreenTile from "../assets/green.png";
 import PurpleTile from "../assets/purple.png";
 import YellowTile from "../assets/yellow.png";
 import RedTile from "../assets/red.png";
+import SuperTile from "../assets/super.png";
 import BoardBG from "../assets/board.png";
 
 import ScoreBox from "../assets/scoreBox.png";
@@ -36,6 +37,10 @@ const scenesSchema = [
         src: Moves,
       },
       { name: "board", src: BoardBG },
+      {
+        name: "super",
+        src: SuperTile,
+      },
       {
         name: "blue",
         src: BlueTile,

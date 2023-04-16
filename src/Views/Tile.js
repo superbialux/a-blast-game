@@ -26,7 +26,7 @@ class TileView extends View {
   }
 
   preload() {
-    this.img = this.assets.find((a) => a.name === this.tile.type).src;
+    this.img = this.assets.find((a) => a.name === (this.tile.behavior === 'super' ? 'super' : this.tile.type)).src;
   }
 
   render() {
@@ -58,6 +58,7 @@ class TileView extends View {
 
   handleClick() {
     dispatch(destroyTiles(this.tile));
+
     const tiles = getState().tiles;
     for (const tile of tiles) {
       if (!tile.toDestroy) continue;

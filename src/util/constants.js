@@ -11,7 +11,7 @@ const settings = {
   aspectRatio: 1 / 1,
   fps: 30,
   size: new Vector(5, 5),
-  superTileThreshold: 4, // if destroyed more than x, activate super tile
+  superTileThreshold: 2, // if destroyed more than x, activate super tile
   minTiles: 2, // if surrounding tiles of the same type is less than 2 then do nothing
 };
 
@@ -24,6 +24,7 @@ const tileBehavior = {
       new Vector(0, 1),
       new Vector(-1, 0),
     ],
+    radius: new Vector(1, 1),
     checkType: true, // useful for super tiles that, for example, destroy all tiles of type 'red',
     recursive: true, // for example, if super tiles destroys all tiles in R radius than it's not recursive (unless one of the destroyed tiles is a super tile)
   },
@@ -35,7 +36,7 @@ const tileBehavior = {
       new Vector(0, 1),
       new Vector(-1, 0),
     ],
-    radius: settings.size, // destroy the whole row + column
+    radius: settings.size, // destroy the whole row and column
     checkType: false,
     recursive: false,
   },
@@ -51,7 +52,7 @@ const tileBehavior = {
       new Vector(1, -1),
       new Vector(-1, 1),
     ],
-    radius: 5, // destroy tiles around
+    radius: new Vector(5, 5), // destroy tiles around
     checkType: false,
     recursive: false,
   },

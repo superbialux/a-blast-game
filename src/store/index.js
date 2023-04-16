@@ -30,27 +30,43 @@ const reducer = (state = initialState, action) => {
 
     case DESTROY_TILES:
       const clickedTile = action.payload;
-      let tilesToDestroy = [clickedTile];
+      let tilesToDestroy = [{ tile: clickedTile, recursive: true }];
 
-      for (const tile of tilesToDestroy) {
+      for (const { tile, recursive } of tilesToDestroy) {
+        if (!recursive) continue;
         const behavior = tileBehavior[tile.behavior];
 
         behavior.indices.forEach((index) => {
-          // Check if neighbouring tile is to be destroyed
-          const neighbor = state.tiles.find(
-            ({ indices }) =>
-              indices && indices.isEqual(Vector.add(tile.indices, index))
-          );
+          for (let x = 1; x <= behavior.radius.x; x++) {
+            for (let y = 1; y <= behavior.radius.y; y++) {
+              const neighbor = state.tiles.find(
+                ({ indices }) =>
+                  indices &&
+                  indices.isEqual(
+                    Vector.add(
+                      tile.indices,
+                      Vector.mult(index, new Vector(x, y))
+                    )
+                  )
+              );
 
-          if (!neighbor) return; // does exist
-          if (behavior.checkType && tile.type !== neighbor.type) return; // is of the same type
-          // is not already in the array
-          if (
-            !tilesToDestroy.find(({ indices }) =>
-              indices.isEqual(neighbor.indices)
-            )
-          )
-            tilesToDestroy.push(neighbor);
+              if (!neighbor) return; // does exist
+              if (behavior.checkType && tile.type !== neighbor.type) return; // is of the same type
+              if (tile.behavior === "normal" && neighbor.behavior === "super")
+                return; // skip if behavior is super
+              // is not already in the array
+              if (
+                !tilesToDestroy.find(({ tile: destroyedTile }) =>
+                  destroyedTile.indices.isEqual(neighbor.indices)
+                )
+              )
+                tilesToDestroy.push({
+                  tile: neighbor,
+                  recursive:
+                    behavior.recursive || neighbor.behavior === "super",
+                });
+            }
+          }
         });
       }
 
@@ -65,15 +81,25 @@ const reducer = (state = initialState, action) => {
         tiles: state.tiles.map((tile) => {
           const convertToSuper =
             tile.indices.isEqual(clickedTile.indices) &&
-            tilesToDestroy.length > settings.superTileThreshold;
+            tilesToDestroy.length > settings.superTileThreshold &&
+            tile.behavior !== "super";
+
+          const convertToNormal =
+            tile.indices.isEqual(clickedTile.indices) &&
+            tile.behavior === "super";
+
           return {
             ...tile,
             toDestroy:
               !convertToSuper &&
-              !!tilesToDestroy.find(({ indices }) =>
-                indices.isEqual(tile.indices)
+              !!tilesToDestroy.find(({ tile: destroyedTile }) =>
+                destroyedTile.indices.isEqual(tile.indices)
               ),
-            behavior: convertToSuper ? "super" : "normal",
+            behavior: convertToSuper
+              ? "super"
+              : convertToNormal
+              ? "normal"
+              : tile.behavior,
           };
         }),
       };
@@ -164,6 +190,7 @@ const reducer = (state = initialState, action) => {
           return {
             ...tile,
             toDestroy: false,
+            behavior: pair.pairTile.behavior,
             type: pair.pairTile.type,
             pair: pair.pairTile,
           };
