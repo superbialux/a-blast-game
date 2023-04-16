@@ -10,9 +10,6 @@ class BoardView extends View {
   }
 
   preload() {
-    const origDim = this.dim.copy()
-    this.dim = Vector.mult(this.dim, 1.05)
-    this.pos.sub(Vector.sub(this.dim, origDim).div(2))
     this.bgImg = this.assets.find((a) => a.name === "board").src;
   }
 

@@ -12,14 +12,13 @@ import { settings } from "../util/constants";
 import View from "./View";
 
 class TileView extends View {
-  constructor(ctx, tile, boardBoundaryMin, boardBoundaryMax) {
+  constructor(ctx, tile, board) {
     super(ctx, tile.pos, tile.dim, "tile");
 
     this.tile = tile;
     this.dispatch = dispatch;
 
-    this.boardBoundaryMin = boardBoundaryMin;
-    this.boardBoundaryMax = boardBoundaryMax;
+    this.board = board;
 
     this.active = false;
     this.isVisible = true;
@@ -34,16 +33,16 @@ class TileView extends View {
     const dim = this.tile.dim;
     const pos = this.tile.pos;
 
-    if (
-      !(
-        pos.x >= this.boardBoundaryMin.x &&
-        pos.y >= this.boardBoundaryMin.y &&
-        Math.floor(pos.x + dim.x) <= this.boardBoundaryMax.x &&
-        Math.floor(pos.y + dim.y) <= this.boardBoundaryMax.y
-      )
-    ) {
-      this.ctx.clearRect(this.pos.x, this.pos.y, this.dim.x, this.dim.y);
-    }
+    // if (
+    //   !(
+    //     pos.x >= this.boardBoundaryMin.x &&
+    //     pos.y >= this.boardBoundaryMin.y &&
+    //     Math.floor(pos.x + dim.x) <= this.boardBoundaryMax.x &&
+    //     Math.floor(pos.y + dim.y) <= this.boardBoundaryMax.y
+    //   )
+    // ) {
+    //   this.ctx.clearRect(this.pos.x, this.pos.y, this.dim.x, this.dim.y);
+    // }
 
     this.ctx.drawImage(this.img, pos.x, pos.y, dim.x, dim.y);
     this.ctx.globalAlpha = 1.0;
@@ -94,35 +93,29 @@ class TileView extends View {
 
     dispatch(
       onAllAnimationEnd(() => {
-        dispatch(refillBoard());
+        dispatch(refillBoard(this.board));
         getState().tiles.forEach((tile) => {
           if (!tile.pair) return;
+
           const startPos = tile.pair.pos.copy();
           const endPos = tile.origPos.copy();
 
-          dispatch(
-            updateTile({
-              ...tile,
-              dim: tile.origDim,
-              pos: startPos,
-              //render: true,
-            })
-          );
-          console.log(startPos, endPos)
-
-          // const callback = (progress) => {
-          //   dispatch(
-          //     updateTile({
-          //       ...tile,
-          //       pos: Vector.add(
-          //         Vector.mult(startPos, 1 - progress),
-          //         Vector.mult(endPos, progress)
-          //       ),
-          //     })
-          //   );
-          // };
-          // const animation = new Animation(callback, 5);
-          // dispatch(queueAnimation(animation));
+          // console.log(startPos, endPos)
+          const callback = (progress) => {
+            dispatch(
+              updateTile({
+                ...tile,
+                dim: tile.origDim,
+                pos: Vector.add(
+                  Vector.mult(startPos, 1 - progress),
+                  Vector.mult(endPos, progress)
+                ),
+                pair: null
+              })
+            );
+          };
+          const animation = new Animation(callback, 5);
+          dispatch(queueAnimation(animation));
         });
       })
     );

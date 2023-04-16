@@ -2,6 +2,12 @@ import Vector from "../Math/Vector";
 import { types } from "../util/constants";
 import randEl from "../util/number";
 
+export const tileDefault = {
+  pair: null,
+  toDestroy: false,
+  behavior: "normal",
+};
+
 const createTiles = (size, boardPos, dim) => {
   const tiles = Array.from({ length: size.x }, (_, x) =>
     Array.from({ length: size.y }, (_, y) => {
@@ -9,14 +15,11 @@ const createTiles = (size, boardPos, dim) => {
       const tileSize = Vector.div(dim, size);
       const pos = Vector.mult(indices, tileSize).add(boardPos);
       return {
+        ...tileDefault,
         indices,
         type: randEl(types),
-        behavior: "normal",
         pos,
         dim: tileSize,
-        pair: null,
-        toDestroy: false,
-        render: true,
         origPos: pos.copy(),
         origDim: tileSize.copy(),
       };
@@ -38,8 +41,9 @@ const updateTile = (tile) => ({
   payload: tile,
 });
 
-const refillBoard = () => ({
+const refillBoard = (board) => ({
   type: "REFILL_BOARD",
+  payload: board,
 });
 
 const queueAnimation = (anim) => ({

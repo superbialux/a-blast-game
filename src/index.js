@@ -49,8 +49,7 @@ const ctx = renderer.init();
         new TileView(
           ctx,
           tile,
-          views.board.boundaryMin,
-          views.board.boundaryMax
+          views.board
         )
     )
     .forEach((tile) => scenes.game.addView(tile));

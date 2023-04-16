@@ -1,6 +1,7 @@
 import Vector from "../Math/Vector";
 import { settings, tileBehavior, types } from "../util/constants";
 import randEl from "../util/number";
+import { tileDefault } from "./actions";
 import {
   CHANGE_SCENE,
   CREATE_TILES,
@@ -90,26 +91,32 @@ const reducer = (state = initialState, action) => {
 
     case REFILL_BOARD:
       const pairs = [];
-      const phantomBoard = [
+
+      // Kind of cumbersome but have to do it to get board pos and size
+
+      const phantomTiles = [
         ...state.tiles,
-        ...Array.from({ length: settings.size.y }, (_, i) => {
-          const indices = new Vector(tile.indices.x, -i - 1); // -1 to -5
-          return {
-            ...tile,
-            toDestroy: false,
-            indices,
-            type: randEl(types),
-            behavior: "normal",
-            pos: tile.pos
-              .copy()
-              .add(Vector.mult(indices, new Vector(0, tile.dim.y))),
-          };
-        }),
-      ]
-      
+        ...Array.from({ length: settings.size.x }, (_, x) =>
+          Array.from({ length: settings.size.y }, (_, i) => {
+            const indices = new Vector(x, -i - 1); // -1 to -5
+            const tileSize = Vector.div(action.payload.dim, settings.size);
+            const pos = Vector.mult(indices, tileSize).add(action.payload.pos);
+
+            return {
+              ...tileDefault,
+              indices,
+              type: randEl(types),
+              pos,
+              dim: tileSize,
+              origPos: pos.copy(),
+              origDim: tileSize.copy(),
+            };
+          })
+        ).flat(),
+      ];
+
       // Go column by column in a descending order
       for (let x = 0; x <= settings.size.x - 1; x++) {
-        //const next
         for (let y = settings.size.y - 1; y >= 0; y--) {
           const newIndices = new Vector(x, y);
           const tile = state.tiles.find(({ indices }) =>
@@ -126,15 +133,14 @@ const reducer = (state = initialState, action) => {
             continue;
 
           // Iterate up until an available tile is found
-     
+
           for (let y = tile.indices.y - 1; y >= -settings.size.y; y--) {
-            // Hack: adds fantom tiles above the board
-            const upperTile = phantomBoard.find((tileAbove) =>
+            const upperTile = phantomTiles.find((tileAbove) =>
               tileAbove.indices.isEqual(new Vector(tile.indices.x, y))
             );
 
             if (upperTile.toDestroy) continue;
-            
+
             if (
               !pairs.find(({ pairTile }) =>
                 pairTile.indices.isEqual(upperTile.indices)
@@ -155,7 +161,12 @@ const reducer = (state = initialState, action) => {
           );
           if (!pair) return tile;
 
-          return { ...tile, toDestroy: false, type: pair.pairTile.type, pair: pair.pairTile };
+          return {
+            ...tile,
+            toDestroy: false,
+            type: pair.pairTile.type,
+            pair: pair.pairTile,
+          };
         }),
       };
 

@@ -11,15 +11,14 @@ class Animation {
   }
 
   run() {
-    if (this.timer > 0) {
-      const perc = this.timer / this.duration;
-      this.callback(perc);
+    const perc = this.timer / this.duration;
+    this.callback(perc);
 
-      if (perc >= 1.0) {
-        this.finished = true;
-        if (this.onFinish) this.onFinish();
-      }
+    if (perc >= 1.0) {
+      this.finished = true;
+      if (this.onFinish) this.onFinish();
     }
+
     this.timer++;
   }
 }
