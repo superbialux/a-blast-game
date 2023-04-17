@@ -21,13 +21,13 @@ const scenesSchema = [
         name: "board",
         component: BoardView,
         pos: new Vector(0.3, 0.5), // in the range from 0 to 1 where 0.5 is the center of the screen;
-        dim: new Vector(0.6, 0.6), // in the rnage from 0 to 1, relation to the resolution's bigger side
+        dim: new Vector(0.8, 0.8), // in the rnage from 0 to 1, relation to the resolution's bigger side
       },
       {
         name: "progress",
         component: Progress,
         pos: new Vector(0.8, 0.5), // in the range from 0 to 1 where 0.5 is the center of the screen;
-        dim: new Vector(0.35, 0.35), // in the rnage from 0 to 1, relation to the resolution's bigger side
+        dim: new Vector(0.5, 0.5), // in the rnage from 0 to 1, relation to the resolution's bigger side
       },
     ],
     assets: [

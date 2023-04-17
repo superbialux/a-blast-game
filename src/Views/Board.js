@@ -14,7 +14,7 @@ class BoardView extends View {
   }
 
   render() {
-    const dim = Vector.mult(this.dim, 1.1);
+    const dim = Vector.mult(this.dim, 1.055);
     const pos = Vector.sub(this.pos, Vector.div(Vector.sub(dim, this.dim), 2));
     this.ctx.drawImage(
       this.bgImg,

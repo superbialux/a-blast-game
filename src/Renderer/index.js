@@ -8,8 +8,8 @@ class Renderer {
     this.context = context;
 
     const height = window.innerHeight;
-    const width = window.innerWidth;
-
+    const width = height * settings.aspectRatio;
+    
     this.res = new Vector(width, height);
     this.canvas = document.createElement("canvas");
     this.scenes = [];
