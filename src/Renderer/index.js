@@ -7,8 +7,8 @@ class Renderer {
   constructor(context) {
     this.context = context;
 
-    const height = Math.min(window.innerHeight, window.innerWidth);
-    const width = height * settings.aspectRatio;
+    const height = window.innerHeight;
+    const width = window.innerWidth;
 
     this.res = new Vector(width, height);
     this.canvas = document.createElement("canvas");

@@ -16,7 +16,7 @@ const renderer = new Renderer("2d");
 const ctx = renderer.init();
 
 (async () => {
-  const size = Math.max(renderer.res.x, renderer.res.y);
+  const size = Math.min(renderer.res.x, renderer.res.y);
   // Reveal variables to the outer scope
   const views = {},
     scenes = {};
@@ -25,10 +25,12 @@ const ctx = renderer.init();
     const scene = new Scene(s.name);
     scenes[s.name] = scene;
     s.views.forEach((v) => {
+      const pos = Vector.mult(v.pos, renderer.res);
+      const dim = Vector.mult(v.dim, size);
       const view = new v.component(
         ctx,
-        Vector.mult(v.pos, renderer.res.x),
-        Vector.mult(v.dim, size)
+        Vector.sub(pos, Vector.div(dim, 2)),
+        dim
       );
 
       views[v.name] = view;
@@ -44,14 +46,7 @@ const ctx = renderer.init();
   dispatch(createTiles(settings.size, views.board.pos, views.board.dim));
 
   getState()
-    .tiles.map(
-      (tile) =>
-        new TileView(
-          ctx,
-          tile,
-          views.board
-        )
-    )
+    .tiles.map((tile) => new TileView(ctx, tile, views.board))
     .forEach((tile) => scenes.game.addView(tile));
 
   await Promise.all(promises);

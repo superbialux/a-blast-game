@@ -33,16 +33,16 @@ class TileView extends View {
     const dim = this.tile.dim;
     const pos = this.tile.pos;
 
-    // if (
-    //   !(
-    //     pos.x >= this.boardBoundaryMin.x &&
-    //     pos.y >= this.boardBoundaryMin.y &&
-    //     Math.floor(pos.x + dim.x) <= this.boardBoundaryMax.x &&
-    //     Math.floor(pos.y + dim.y) <= this.boardBoundaryMax.y
-    //   )
-    // ) {
-    //   this.ctx.clearRect(this.pos.x, this.pos.y, this.dim.x, this.dim.y);
-    // }
+    if (
+      !(
+        pos.x >= this.board.boundaryMin.x &&
+        pos.y >= this.board.boundaryMin.y &&
+        Math.floor(pos.x + dim.x) <= this.board.boundaryMax.x &&
+        Math.floor(pos.y + dim.y) <= this.board.boundaryMax.y
+      )
+    ) {
+      this.ctx.globalAlpha = 0.0;
+    }
 
     this.ctx.drawImage(this.img, pos.x, pos.y, dim.x, dim.y);
     this.ctx.globalAlpha = 1.0;

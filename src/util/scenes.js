@@ -11,6 +11,7 @@ import Score from "../assets/score.png";
 import Moves from "../assets/moves.png";
 import Vector from "../Math/Vector";
 import BoardView from "../Views/Board";
+import Progress from "../Views/Progress";
 
 const scenesSchema = [
   {
@@ -19,8 +20,14 @@ const scenesSchema = [
       {
         name: "board",
         component: BoardView,
-        pos: new Vector(0.05, 0.05), // in the range from 0 to 1 where 0.5 is the center of the screen;
-        dim: new Vector(0.5, 0.5), // in the rnage from 0 to 1, relation to the resolution's bigger side
+        pos: new Vector(0.3, 0.5), // in the range from 0 to 1 where 0.5 is the center of the screen;
+        dim: new Vector(0.6, 0.6), // in the rnage from 0 to 1, relation to the resolution's bigger side
+      },
+      {
+        name: "progress",
+        component: Progress,
+        pos: new Vector(0.8, 0.5), // in the range from 0 to 1 where 0.5 is the center of the screen;
+        dim: new Vector(0.35, 0.35), // in the rnage from 0 to 1, relation to the resolution's bigger side
       },
     ],
     assets: [

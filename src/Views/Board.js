@@ -14,12 +14,14 @@ class BoardView extends View {
   }
 
   render() {
+    const dim = Vector.mult(this.dim, 1.1);
+    const pos = Vector.sub(this.pos, Vector.div(Vector.sub(dim, this.dim), 2));
     this.ctx.drawImage(
       this.bgImg,
-      this.pos.x,
-      this.pos.y,
-      this.dim.x,
-      this.dim.y
+      pos.x,
+      pos.y,
+      dim.x,
+      dim.y
     );
   }
 }

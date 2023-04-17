@@ -23,6 +23,9 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: "A Blast Game - Maksim Bushmakin",
+      meta: {
+        viewport: "width=device-width, initial-scale=1",
+      },
     }),
   ],
 };
