@@ -9,7 +9,7 @@ class BoardView extends View {
   }
 
   preload() {
-    this.bgImg = this.assets.find((a) => a.name === 'board').src;
+    this.bgImg = this.assets.board;
   }
 
   render() {

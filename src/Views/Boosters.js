@@ -12,9 +12,9 @@ class Boosters extends View {
   }
 
   preload() {
-    this.bgImg = this.assets.find((a) => a.name === 'scoreBox').src;
-    this.scoreImg = this.assets.find((a) => a.name === 'score').src;
-    this.movesImg = this.assets.find((a) => a.name === 'moves').src;
+    this.bgImg = this.assets.scoreBox;
+    this.scoreImg = this.assets.score;
+    this.movesImg = this.assets.moves;
   }
 
   addText(title, pos) {

@@ -3,6 +3,7 @@ class Scene {
     this.name = name;
     this.views = [];
     this.assets = [];
+    this.loadedAssets = {};
   }
 
   addView(view) {
@@ -24,7 +25,7 @@ class Scene {
           img.src = asset.src;
 
           img.onload = () => {
-            asset.src = img;
+            this.loadedAssets[asset.name] = img;
             resolve();
           };
         });
@@ -49,7 +50,7 @@ class Scene {
 
   propagateAssets() {
     this.views.forEach((view) => {
-      view.assets = this.assets;
+      view.assets = this.loadedAssets;
       view.preload();
     });
   }

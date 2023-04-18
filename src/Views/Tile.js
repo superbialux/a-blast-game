@@ -23,9 +23,7 @@ class TileView extends View {
   }
 
   preload() {
-    this.img = this.assets.find(
-      (a) => a.name === (this.tile.behavior === 'super' ? 'super' : this.tile.type)
-    ).src;
+    this.img = this.assets[this.tile.behavior === 'super' ? 'super' : this.tile.type];
   }
 
   render() {
