@@ -1,21 +1,16 @@
-import Animation from "../Animation";
-import Vector from "../Math/Vector";
-import { dispatch, dispatchAll, getState } from "../store";
+import { dispatch, dispatchAll, getState } from '../store';
 import {
   destroyTiles,
   onAllAnimationEnd,
-  queueAnimation,
   refillBoard,
   toggleInteractivity,
   updateScore,
-  updateTile,
-} from "../store/actions";
-import { settings } from "../util/constants";
-import View from "./View";
+} from '../store/actions';
+import View from './View';
 
 class TileView extends View {
   constructor(ctx, tile, board) {
-    super(ctx, tile.pos, tile.dim, "tile");
+    super(ctx, tile.pos, tile.dim, 'tile');
 
     this.tile = tile;
     this.dispatch = dispatch;
@@ -24,19 +19,17 @@ class TileView extends View {
 
     this.active = false;
     this.isVisible = true;
-    this.img;
+    this.img = null;
   }
 
   preload() {
     this.img = this.assets.find(
-      (a) =>
-        a.name === (this.tile.behavior === "super" ? "super" : this.tile.type)
+      (a) => a.name === (this.tile.behavior === 'super' ? 'super' : this.tile.type)
     ).src;
   }
 
   render() {
-    const dim = this.tile.dim;
-    const pos = this.tile.pos;
+    const { dim, pos } = this.tile;
 
     this.ctx.globalAlpha = this.tile.opacity;
 
@@ -58,9 +51,7 @@ class TileView extends View {
   update() {
     this.preload();
     // Keep reference to the array in the store
-    this.tile = getState().tiles.find(({ indices }) =>
-      indices.isEqual(this.tile.indices)
-    );
+    this.tile = getState().tiles.find(({ indices }) => indices.isEqual(this.tile.indices));
   }
 
   handleClick() {
@@ -69,8 +60,8 @@ class TileView extends View {
       destroyTiles(this.tile),
       updateScore(),
       onAllAnimationEnd(() => {
-        dispatch(refillBoard(this.board))
-        dispatch(toggleInteractivity())
+        dispatch(refillBoard(this.board));
+        dispatch(toggleInteractivity());
       }),
     ]);
   }

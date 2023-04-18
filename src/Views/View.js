@@ -1,6 +1,4 @@
-import Vector from "../Math/Vector";
-import _ from "lodash";
-import store from "../store";
+import Vector from '../Math/Vector';
 
 class View {
   constructor(ctx, pos, dim, type) {
@@ -14,31 +12,42 @@ class View {
 
     this.assets = [];
 
-    this.id = _.uniqueId();
-    this.viewType = type || "common-view";
+    this.viewType = type || 'common-view';
   }
 
   clear() {
     this.ctx.clearRect(this.pos.x, this.pos.y, this.dim.x, this.dim.y);
   }
 
-  render() {}
+  render() {
+    return this;
+  }
 
-  update() {}
+  update() {
+    return this;
+  }
 
-  handleClick() {}
+  handleClick() {
+    return this;
+  }
 
-  handleHover() {}
+  handleHover() {
+    return this;
+  }
 
-  handleMouseLeave() {}
+  handleMouseLeave() {
+    return this;
+  }
 
-  preload() {}
+  preload() {
+    return this;
+  }
 
   addText(title, fontSize, pos) {
-    this.ctx.textAlign = "center";
+    this.ctx.textAlign = 'center';
     this.ctx.font = `${fontSize}px Seymour One`;
 
-    this.ctx.fillStyle = "#fff";
+    this.ctx.fillStyle = '#fff';
     this.ctx.fillText(title, pos.x, pos.y);
   }
 }

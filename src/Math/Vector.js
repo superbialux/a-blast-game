@@ -90,7 +90,6 @@ class Vector {
   div(x) {
     if (x instanceof Vector) {
       if (x.x === 0 || x.y === 0) {
-        console.warn("Math/Vectors", "Cannot divide by 0");
         return this;
       }
       this.x /= x.x;
@@ -98,7 +97,6 @@ class Vector {
       return this;
     }
     if (x === 0) {
-      console.warn("Math/Vectors", "Cannot divide by 0");
       return this;
     }
     this.x /= x;
@@ -110,7 +108,6 @@ class Vector {
     const newV = v1.copy();
     if (v2 instanceof Vector) {
       if (v2.x === 0 || v2.y === 0) {
-        console.warn("Math/Vectors", "Cannot divide by 0");
         return this;
       }
       newV.x /= v2.x;
@@ -118,7 +115,6 @@ class Vector {
       return newV;
     }
     if (v2 === 0) {
-      console.warn("Math/Vectors", "Cannot divide by 0");
       return this;
     }
     newV.x /= v2;

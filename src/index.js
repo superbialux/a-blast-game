@@ -1,25 +1,22 @@
-import "normalize.css";
-import "./index.css";
-import Vector from "./Math/Vector";
-import BoardView from "./Views/Board";
+import 'normalize.css';
+import './index.css';
+import Vector from './Math/Vector';
+import Scene from './Scene';
+import TileView from './Views/Tile';
+import Renderer from './Renderer';
+import { getState, dispatch } from './store';
+import { createTiles } from './store/actions';
+import { settings } from './util/constants';
+import scenesSchema from './util/scenes';
 
-import Scene from "./Scene";
-import TileView from "./Views/Tile";
-import Renderer from "./Renderer";
-import { getState, dispatch } from "./store";
-import { changeScene, createTiles } from "./store/actions";
-import Progress from "./Views/Progress";
-import { settings } from "./util/constants";
-import { finishAssets, gameAssets, scenesSchema } from "./util/scenes";
-
-const renderer = new Renderer("2d");
+const renderer = new Renderer('2d');
 const ctx = renderer.init();
 
 (async () => {
   const size = Math.min(renderer.res.x, renderer.res.y);
   // Reveal variables to the outer scope
-  const views = {},
-    scenes = {};
+  const views = {};
+  const scenes = {};
 
   const promises = scenesSchema.map(async (s) => {
     const scene = new Scene(s.name);
@@ -27,11 +24,7 @@ const ctx = renderer.init();
     s.views.forEach((v) => {
       const pos = Vector.mult(v.pos, renderer.res);
       const dim = Vector.mult(v.dim, size);
-      const view = new v.component(
-        ctx,
-        Vector.sub(pos, Vector.div(dim, 2)),
-        dim
-      );
+      const view = new v.Component(ctx, Vector.sub(pos, Vector.div(dim, 2)), dim);
 
       views[v.name] = view;
       scene.addView(view);
@@ -71,28 +64,25 @@ const ctx = renderer.init();
   // }) ;
 })();
 
-const container = document.getElementById("wrapper");
 renderer.canvas.addEventListener(
-  "click",
+  'click',
   (e) => {
-    const animations = getState().animations.filter(
-      ({ finished }) => !finished
-    );
+    const animations = getState().animations.filter(({ finished }) => !finished);
 
     if (animations.length > 0 || !getState().canInteract) return;
     const bounds = renderer.canvas.getBoundingClientRect();
     const pos = new Vector(e.clientX - bounds.left, e.clientY - bounds.top);
     pos.div(new Vector(bounds.width, bounds.height));
     pos.mult(renderer.res);
-    renderer.manageEvent("handleClick", pos);
+    renderer.manageEvent('handleClick', pos);
   },
   false
 );
 
 renderer.canvas.addEventListener(
-  "mousemove",
+  'mousemove',
   (e) => {
-    renderer.manageEvent("handleHover", new Vector(e.offsetX, e.offsetY));
+    renderer.manageEvent('handleHover', new Vector(e.offsetX, e.offsetY));
   },
   false
 );

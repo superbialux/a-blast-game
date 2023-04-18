@@ -15,9 +15,9 @@ class Scene {
 
   async preload() {
     const promises = [];
-    for (const asset of this.assets) {
+    this.assets.forEach((asset) => {
       let promise;
-      if (asset.type === "image") {
+      if (asset.type === 'image') {
         promise = new Promise((resolve, reject) => {
           const img = new Image();
           img.onerror = reject;
@@ -29,9 +29,9 @@ class Scene {
           };
         });
       } else {
-        const loadFont = async (asset) => {
+        const loadFont = async (f) => {
           try {
-            const font = new FontFace(asset.name, `url(${asset.src})`);
+            const font = new FontFace(f.name, `url(${f.src})`);
             await font.load();
             document.fonts.add(font);
             return Promise.resolve();
@@ -42,22 +42,22 @@ class Scene {
         promise = loadFont(asset);
       }
       promises.push(promise);
-    }
+    });
 
     await Promise.all(promises);
   }
 
   propagateAssets() {
-    for (const view of this.views) {
+    this.views.forEach((view) => {
       view.assets = this.assets;
       view.preload();
-    }
+    });
   }
 
   manageEvent(action, pos, state) {
     let activeView;
 
-    for (const view of this.views) {
+    this.views.forEach((view) => {
       if (
         pos.x > view.boundaryMin.x &&
         pos.x < view.boundaryMax.x &&
@@ -66,14 +66,14 @@ class Scene {
       ) {
         if (!activeView) {
           activeView = view;
-          continue;
+          return;
         }
 
-        if (view.area > activeView.area) continue;
+        if (view.area > activeView.area) return;
 
         activeView = view;
       }
-    }
+    });
 
     if (this.lastActiveView) this.lastActiveView.handleMouseLeave();
 
@@ -84,21 +84,15 @@ class Scene {
   }
 
   clear() {
-    for (const view of this.views) {
-      view.clear();
-    }
+    this.views.forEach((view) => view.clear());
   }
 
   render() {
-    for (const view of this.views) {
-      view.render();
-    }
+    this.views.forEach((view) => view.render());
   }
 
   update() {
-    for (const view of this.views) {
-      view.update();
-    }
+    this.views.forEach((view) => view.update());
   }
 }
 

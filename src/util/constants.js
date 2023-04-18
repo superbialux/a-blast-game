@@ -1,11 +1,6 @@
-import BlueTile from "../assets/blue.png";
-import GreenTile from "../assets/green.png";
-import PurpleTile from "../assets/purple.png";
-import YellowTile from "../assets/yellow.png";
-import RedTile from "../assets/red.png";
-import Vector from "../Math/Vector";
+import Vector from '../Math/Vector';
 
-const types = ["blue", "green", "purple", "yellow", "red"];
+const types = ['blue', 'green', 'purple', 'yellow', 'red'];
 
 const settings = {
   aspectRatio: 16 / 10,

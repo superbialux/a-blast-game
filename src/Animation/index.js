@@ -1,4 +1,4 @@
-import { settings } from "../util/constants";
+import { settings } from '../util/constants';
 
 class Animation {
   constructor(callback, duration, onFinish) {
@@ -19,7 +19,7 @@ class Animation {
       this.finished = true;
     }
 
-    this.timer++;
+    this.timer += 1;
   }
 }
 

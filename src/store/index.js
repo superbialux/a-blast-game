@@ -1,8 +1,8 @@
-import Animation from "../Animation";
-import Vector from "../Math/Vector";
-import { settings, tileBehavior, types } from "../util/constants";
-import randEl from "../util/number";
-import { tileDefault, updateTile } from "./actions";
+import Animation from '../Animation';
+import Vector from '../Math/Vector';
+import { settings, tileBehavior, types } from '../util/constants';
+import randEl from '../util/number';
+import { tileDefault, updateTile } from './actions';
 import {
   CHANGE_SCENE,
   CREATE_TILES,
@@ -13,51 +13,46 @@ import {
   TOGGLE_INTERACTIVITY,
   UPDATE_SCORE,
   UPDATE_TILE,
-} from "./types";
+} from './types';
 
 const initialState = {
   moves: 25,
   score: 0,
-  scene: "game",
+  scene: 'game',
   animations: [],
   tiles: [],
   onAllAnimationEnd: null,
   canInteract: true,
 };
 
-const reducer = (state = initialState, action) => {
+const reducer = (action, state = initialState) => {
   switch (action.type) {
     case CHANGE_SCENE:
       return { ...state, scene: action.payload };
     case CREATE_TILES:
       return { ...state, tiles: action.payload };
 
-    case DESTROY_TILES:
+    case DESTROY_TILES: {
       let clickedTile = action.payload;
-      let tilesToDestroy = [{ tile: clickedTile, recursive: true }];
+      const tilesToDestroy = [{ tile: clickedTile, recursive: true }];
 
+      // eslint-disable-next-line no-restricted-syntax
       for (const { tile, recursive } of tilesToDestroy) {
         if (!recursive) continue;
         const behavior = tileBehavior[tile.behavior];
 
         behavior.indices.forEach((index) => {
-          for (let x = 1; x <= behavior.radius.x; x++) {
-            for (let y = 1; y <= behavior.radius.y; y++) {
+          for (let x = 1; x <= behavior.radius.x; x += 1) {
+            for (let y = 1; y <= behavior.radius.y; y += 1) {
               const neighbor = state.tiles.find(
                 ({ indices }) =>
                   indices &&
-                  indices.isEqual(
-                    Vector.add(
-                      tile.indices,
-                      Vector.mult(index, new Vector(x, y))
-                    )
-                  )
+                  indices.isEqual(Vector.add(tile.indices, Vector.mult(index, new Vector(x, y))))
               );
 
               if (!neighbor) return; // does exist
               if (behavior.checkType && tile.type !== neighbor.type) return; // is of the same type
-              if (tile.behavior === "normal" && neighbor.behavior === "super")
-                return; // skip if behavior is super
+              if (tile.behavior === 'normal' && neighbor.behavior === 'super') return; // skip if behavior is super
               // is not already in the array
               if (
                 !tilesToDestroy.find(({ tile: destroyedTile }) =>
@@ -66,28 +61,30 @@ const reducer = (state = initialState, action) => {
               )
                 tilesToDestroy.push({
                   tile: neighbor,
-                  recursive:
-                    behavior.recursive || neighbor.behavior === "super",
+                  recursive: behavior.recursive || neighbor.behavior === 'super',
                 });
             }
           }
         });
       }
 
-      if (
-        clickedTile.behavior === "normal" &&
-        tilesToDestroy.length < settings.minTiles
-      )
+      if (clickedTile.behavior === 'normal' && tilesToDestroy.length < settings.minTiles)
         return state; // should not check if the tile is super
       const newTiles = state.tiles.map((tile) => {
         const isClicked = tile.indices.isEqual(clickedTile.indices);
-        const isSuper = tile.behavior === "super";
+        const isSuper = tile.behavior === 'super';
         const convertToSuper =
-          isClicked &&
-          tilesToDestroy.length > settings.superTileThreshold &&
-          !isSuper;
+          isClicked && tilesToDestroy.length > settings.superTileThreshold && !isSuper;
 
         const convertToNormal = isClicked && isSuper;
+
+        let { behavior } = tile;
+        if (convertToSuper) {
+          behavior = 'super';
+        }
+        if (convertToNormal) {
+          behavior = 'nomrla';
+        }
 
         return {
           ...tile,
@@ -97,17 +94,11 @@ const reducer = (state = initialState, action) => {
               destroyedTile.indices.isEqual(tile.indices)
             ),
           // Conversion logic
-          behavior: convertToSuper
-            ? "super"
-            : convertToNormal
-            ? "normal"
-            : tile.behavior,
+          behavior,
         };
       });
 
-      clickedTile = newTiles.find((tile) =>
-        tile.indices.isEqual(clickedTile.indices)
-      ); // recheck clicked tile if it changed to super
+      clickedTile = newTiles.find((tile) => tile.indices.isEqual(clickedTile.indices)); // recheck clicked tile if it changed to super
       return {
         ...state,
         tiles: newTiles,
@@ -118,17 +109,15 @@ const reducer = (state = initialState, action) => {
             const origDim = tile.origDim.copy();
 
             const callback = (progress) => {
-              let { pos, dim, opacity } = tile;
-              if (clickedTile.behavior === "super") {
+              let { pos, dim } = tile;
+              if (clickedTile.behavior === 'super') {
                 pos = Vector.add(
                   Vector.mult(tile.pos, 1 - progress),
                   Vector.mult(clickedTile.pos, progress)
                 );
               } else {
                 dim = Vector.mult(tile.dim, 1 - progress);
-                pos = Vector.add(origPos, Vector.div(origDim, 2)).sub(
-                  Vector.div(dim, 2)
-                );
+                pos = Vector.add(origPos, Vector.div(origDim, 2)).sub(Vector.div(dim, 2));
               }
 
               dispatch(
@@ -144,26 +133,24 @@ const reducer = (state = initialState, action) => {
             return new Animation(callback, 5);
           }),
       };
-
-    case UPDATE_TILE:
+    }
+    case UPDATE_TILE: {
       const updatedTile = action.payload;
       return {
         ...state,
         tiles: state.tiles
           .slice()
-          .map((tile) =>
-            tile.indices.isEqual(updatedTile.indices) ? updatedTile : tile
-          ),
+          .map((tile) => (tile.indices.isEqual(updatedTile.indices) ? updatedTile : tile)),
       };
-
-    case REFILL_BOARD:
+    }
+    case REFILL_BOARD: {
       const pairs = [];
 
       // Hack: create phantom tiles above the original board.
       const phantomTiles = [
         ...state.tiles,
         ...Array.from({ length: settings.size.x }, (_, x) =>
-          Array.from({ length: settings.size.y }, (_, i) => {
+          Array.from({ length: settings.size.y }, (__, i) => {
             const indices = new Vector(x, -i - 1); // -1 to -5
             const tileSize = Vector.div(action.payload.dim, settings.size);
             const pos = Vector.mult(indices, tileSize).add(action.payload.pos);
@@ -182,35 +169,26 @@ const reducer = (state = initialState, action) => {
       ];
 
       // Go column by column in a descending order
-      for (let x = 0; x <= settings.size.x - 1; x++) {
-        for (let y = settings.size.y - 1; y >= 0; y--) {
+      for (let x = 0; x <= settings.size.x - 1; x += 1) {
+        for (let y = settings.size.y - 1; y >= 0; y -= 1) {
           const newIndices = new Vector(x, y);
-          const tile = state.tiles.find(({ indices }) =>
-            indices.isEqual(newIndices)
-          );
+          const tile = state.tiles.find(({ indices }) => indices.isEqual(newIndices));
           if (
             !(
-              tile.toDestroy ||
-              pairs.find(({ pairTile }) =>
-                pairTile.indices.isEqual(tile.indices)
-              )
+              tile.toDestroy || pairs.find(({ pairTile }) => pairTile.indices.isEqual(tile.indices))
             )
           )
             continue;
 
           // Iterate up until an available tile is found
-          for (let y = tile.indices.y - 1; y >= -settings.size.y; y--) {
+          for (let i = tile.indices.y - 1; i >= -settings.size.y; i -= 1) {
             const upperTile = phantomTiles.find((tileAbove) =>
-              tileAbove.indices.isEqual(new Vector(tile.indices.x, y))
+              tileAbove.indices.isEqual(new Vector(tile.indices.x, i))
             );
 
             if (upperTile.toDestroy) continue;
 
-            if (
-              !pairs.find(({ pairTile }) =>
-                pairTile.indices.isEqual(upperTile.indices)
-              )
-            ) {
+            if (!pairs.find(({ pairTile }) => pairTile.indices.isEqual(upperTile.indices))) {
               pairs.push({ tile, pairTile: upperTile });
               break;
             }
@@ -218,9 +196,7 @@ const reducer = (state = initialState, action) => {
         }
       }
       const updatedTiles = state.tiles.map((tile) => {
-        const pair = pairs.find(({ tile: origTile }) =>
-          origTile.indices.isEqual(tile.indices)
-        );
+        const pair = pairs.find(({ tile: origTile }) => origTile.indices.isEqual(tile.indices));
         if (!pair) return tile;
 
         return {
@@ -258,13 +234,12 @@ const reducer = (state = initialState, action) => {
             return new Animation(callback, 5);
           }),
       };
-
+    }
     case UPDATE_SCORE:
       return {
         ...state,
         moves: state.moves - 1,
-        score:
-          state.score + state.tiles.filter((tile) => tile.toDestroy).length,
+        score: state.score + state.tiles.filter((tile) => tile.toDestroy).length,
       };
 
     case QUEUE_ANIMATION:
@@ -274,23 +249,21 @@ const reducer = (state = initialState, action) => {
       return { ...state, onAllAnimationEnd: action.payload };
 
     case TOGGLE_INTERACTIVITY:
-      if (action.payload === undefined)
-        return { ...state, canInteract: !state.canInteract };
+      if (action.payload === undefined) return { ...state, canInteract: !state.canInteract };
       return { ...state, canInteract: action.payload };
     default:
       return state;
   }
 };
 
-const createStore = (reducer) => {
-  let state = reducer(undefined, {});
+const createStore = (reduce) => {
+  let state = reduce({}, undefined);
 
   const getState = () => state;
   const dispatch = (action) => {
-    state = reducer(state, action);
+    state = reduce(action, state);
   };
-  const dispatchAll = (actions) =>
-    actions.forEach((action) => dispatch(action));
+  const dispatchAll = (actions) => actions.forEach((action) => dispatch(action));
 
   return {
     getState,

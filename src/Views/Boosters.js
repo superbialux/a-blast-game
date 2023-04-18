@@ -1,23 +1,27 @@
+import Vector from '../Math/Vector';
+import { getState } from '../store';
+import View from './View';
+
 class Boosters extends View {
   constructor(ctx, pos, dim) {
     super(ctx, pos, dim);
 
-    this.bgImg;
-    this.scoreImg;
-    this.movesImg;
+    this.bgImg = null;
+    this.scoreImg = null;
+    this.movesImg = null;
   }
 
   preload() {
-    this.bgImg = this.assets.find((a) => a.name === "scoreBox").src;
-    this.scoreImg = this.assets.find((a) => a.name === "score").src;
-    this.movesImg = this.assets.find((a) => a.name === "moves").src;
+    this.bgImg = this.assets.find((a) => a.name === 'scoreBox').src;
+    this.scoreImg = this.assets.find((a) => a.name === 'score').src;
+    this.movesImg = this.assets.find((a) => a.name === 'moves').src;
   }
 
   addText(title, pos) {
-    this.ctx.textAlign = "center";  
-    this.ctx.font = "48px serif";
+    this.ctx.textAlign = 'center';
+    this.ctx.font = '48px serif';
 
-    this.ctx.fillStyle = "#fff";
+    this.ctx.fillStyle = '#fff';
     this.ctx.fillText(title, pos.x, pos.y);
   }
 
@@ -41,18 +45,12 @@ class Boosters extends View {
     );
 
     this.ctx.drawImage(this.scoreImg, pos.x, pos.y, dim.x, dim.y);
-      
+
     this.addText(getState().score, pos.add(dim.mult(new Vector(0.5, 0.6))));
   }
 
   renderBG() {
-    this.ctx.drawImage(
-      this.bgImg,
-      this.pos.x,
-      this.pos.y,
-      this.dim.x,
-      this.dim.y
-    );
+    this.ctx.drawImage(this.bgImg, this.pos.x, this.pos.y, this.dim.x, this.dim.y);
   }
 
   render() {

@@ -1,7 +1,7 @@
-import Vector from "../Math/Vector";
-import { dispatch, getState } from "../store";
-import { onAllAnimationEnd } from "../store/actions";
-import { settings } from "../util/constants";
+import Vector from '../Math/Vector';
+import { dispatch, getState } from '../store';
+import { onAllAnimationEnd } from '../store/actions';
+import { settings } from '../util/constants';
 
 class Renderer {
   constructor(context) {
@@ -9,17 +9,17 @@ class Renderer {
 
     const height = window.innerHeight;
     const width = height * settings.aspectRatio;
-    
+
     this.res = new Vector(width, height);
-    this.canvas = document.createElement("canvas");
+    this.canvas = document.createElement('canvas');
     this.scenes = [];
-    this.scene;
+    this.scene = null;
   }
 
   init() {
-    const container = document.createElement("div");
-    container.id = "wrapper"
-    container.classList.add("container");
+    const container = document.createElement('div');
+    container.id = 'wrapper';
+    container.classList.add('container');
 
     this.canvas.width = this.res.x;
     this.canvas.height = this.res.y;
@@ -47,13 +47,9 @@ class Renderer {
     if (!this.scene) return;
     this.scene.clear();
 
-    const animations = getState().animations.filter(
-      ({ finished }) => !finished
-    );
+    const animations = getState().animations.filter(({ finished }) => !finished);
 
-    for (const anim of animations) {
-      anim.run();
-    }
+    animations.forEach((anim) => anim.run());
 
     if (!animations.length && getState().onAllAnimationEnd) {
       getState().onAllAnimationEnd();
