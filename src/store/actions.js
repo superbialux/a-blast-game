@@ -1,31 +1,29 @@
 import Vector from '../Math/Vector';
 import { settings, types } from '../util/constants';
 import randEl from '../util/number';
-
-export const tileDefault = {
-  pair: null,
-  toDestroy: false,
-  behavior: 'normal',
-  opacity: 1.0,
-};
+import { isBoardPlayable, tileDefault } from '../util/tiles';
 
 const createTiles = (boardPos, dim) => {
-  const tiles = Array.from({ length: settings.size.x }, (_, x) =>
-    Array.from({ length: settings.size.y }, (__, y) => {
-      const indices = new Vector(x, y);
-      const tileSize = Vector.div(dim, settings.size);
-      const pos = Vector.mult(indices, tileSize).add(boardPos);
-      return {
-        ...tileDefault,
-        indices,
-        type: randEl(types),
-        pos,
-        dim: tileSize,
-        origPos: pos.copy(),
-        origDim: tileSize.copy(),
-      };
-    })
-  );
+  let tiles = [];
+  while (!isBoardPlayable(tiles)) {
+    tiles = Array.from({ length: settings.size.x }, (_, x) =>
+      Array.from({ length: settings.size.y }, (__, y) => {
+        const indices = new Vector(x, y);
+        const tileSize = Vector.div(dim, settings.size);
+        const pos = Vector.mult(indices, tileSize).add(boardPos);
+        return {
+          ...tileDefault,
+          indices,
+          type: randEl(types),
+          pos,
+          dim: tileSize,
+          origPos: pos.copy(),
+          origDim: tileSize.copy(),
+        };
+      })
+    ).flat();
+  }
+
   return {
     type: 'CREATE_TILES',
     payload: tiles.flat(),

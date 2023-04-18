@@ -1,8 +1,9 @@
 import Animation from '../Animation';
 import Vector from '../Math/Vector';
-import { settings, tileBehavior, types } from '../util/constants';
+import { settings, types } from '../util/constants';
 import randEl from '../util/number';
-import { tileDefault, updateTile } from './actions';
+import { tileBehavior, tileDefault } from '../util/tiles';
+import { updateTile } from './actions';
 import {
   CHANGE_SCENE,
   CREATE_TILES,
