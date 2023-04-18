@@ -11,10 +11,10 @@ class Animation {
   }
 
   run() {
-    const perc = this.timer / this.duration;
+    const perc = Math.min(Math.max(0, this.timer / this.duration), 1.0);
     this.callback(perc);
 
-    if (perc >= 1.0) {
+    if (perc === 1) {
       this.finished = true;
       if (this.onFinish) this.onFinish();
     }

@@ -1,11 +1,12 @@
 import Animation from "../Animation";
 import Vector from "../Math/Vector";
-import { dispatch, getState } from "../store";
+import { dispatch, dispatchAll, getState } from "../store";
 import {
   destroyTiles,
   onAllAnimationEnd,
   queueAnimation,
   refillBoard,
+  toggleInteractivity,
   updateScore,
   updateTile,
 } from "../store/actions";
@@ -37,6 +38,8 @@ class TileView extends View {
     const dim = this.tile.dim;
     const pos = this.tile.pos;
 
+    this.ctx.globalAlpha = this.tile.opacity;
+
     if (
       !(
         Math.ceil(pos.x) >= this.board.boundaryMin.x &&
@@ -61,69 +64,15 @@ class TileView extends View {
   }
 
   handleClick() {
-    dispatch(destroyTiles(this.tile));
-
-    const tiles = getState().tiles;
-    for (const tile of tiles) {
-      if (!tile.toDestroy) continue;
-      const origPos = tile.origPos.copy();
-      const origDim = tile.origDim.copy();
-
-      const callback = (progress) => {
-        let { pos, dim } = tile;
-        if (this.tile.behavior === "super") {
-          pos = Vector.add(
-            Vector.mult(tile.pos, 1 - progress),
-            Vector.mult(this.tile.pos, progress)
-          );
-        } else {
-          dim = Vector.mult(tile.dim, 1 - progress);
-          pos = Vector.add(origPos, Vector.div(origDim, 2)).sub(
-            Vector.div(dim, 2)
-          );
-        }
-
-        dispatch(
-          updateTile({
-            ...tile,
-            pos,
-            dim,
-          })
-        );
-      };
-
-      const animation = new Animation(callback, 5);
-      dispatch(queueAnimation(animation));
-    }
-    dispatch(updateScore());
-    dispatch(
+    dispatchAll([
+      toggleInteractivity(),
+      destroyTiles(this.tile),
+      updateScore(),
       onAllAnimationEnd(() => {
-        dispatch(refillBoard(this.board));
-        getState().tiles.forEach((tile) => {
-          if (!tile.pair) return;
-
-          const startPos = tile.pair.pos.copy();
-          const endPos = tile.origPos.copy();
-
-          // console.log(startPos, endPos)
-          const callback = (progress) => {
-            dispatch(
-              updateTile({
-                ...tile,
-                dim: tile.origDim,
-                pos: Vector.add(
-                  Vector.mult(startPos, 1 - progress),
-                  Vector.mult(endPos, progress)
-                ),
-                pair: null,
-              })
-            );
-          };
-          const animation = new Animation(callback, 5);
-          dispatch(queueAnimation(animation));
-        });
-      })
-    );
+        dispatch(refillBoard(this.board))
+        dispatch(toggleInteractivity())
+      }),
+    ]);
   }
 }
 

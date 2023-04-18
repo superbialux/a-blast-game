@@ -1,7 +1,8 @@
+import Animation from "../Animation";
 import Vector from "../Math/Vector";
 import { settings, tileBehavior, types } from "../util/constants";
 import randEl from "../util/number";
-import { tileDefault } from "./actions";
+import { tileDefault, updateTile } from "./actions";
 import {
   CHANGE_SCENE,
   CREATE_TILES,
@@ -9,6 +10,7 @@ import {
   ON_ALL_ANIMATION_END,
   QUEUE_ANIMATION,
   REFILL_BOARD,
+  TOGGLE_INTERACTIVITY,
   UPDATE_SCORE,
   UPDATE_TILE,
 } from "./types";
@@ -20,6 +22,7 @@ const initialState = {
   animations: [],
   tiles: [],
   onAllAnimationEnd: null,
+  canInteract: true,
 };
 
 const reducer = (state = initialState, action) => {
@@ -30,7 +33,7 @@ const reducer = (state = initialState, action) => {
       return { ...state, tiles: action.payload };
 
     case DESTROY_TILES:
-      const clickedTile = action.payload;
+      let clickedTile = action.payload;
       let tilesToDestroy = [{ tile: clickedTile, recursive: true }];
 
       for (const { tile, recursive } of tilesToDestroy) {
@@ -76,33 +79,69 @@ const reducer = (state = initialState, action) => {
         tilesToDestroy.length < settings.minTiles
       )
         return state; // should not check if the tile is super
+      const newTiles = state.tiles.map((tile) => {
+        const convertToSuper =
+          tile.indices.isEqual(clickedTile.indices) &&
+          tilesToDestroy.length > settings.superTileThreshold &&
+          tile.behavior !== "super";
 
+        const convertToNormal =
+          tile.indices.isEqual(clickedTile.indices) &&
+          tile.behavior === "super";
+
+        return {
+          ...tile,
+          toDestroy:
+            !convertToSuper &&
+            !!tilesToDestroy.find(({ tile: destroyedTile }) =>
+              destroyedTile.indices.isEqual(tile.indices)
+            ),
+          behavior: convertToSuper
+            ? "super"
+            : convertToNormal
+            ? "normal"
+            : tile.behavior,
+        };
+      });
+
+      clickedTile = newTiles.find((tile) =>
+        tile.indices.isEqual(clickedTile.indices)
+      ); // recheck clicked tile if it changed to super
       return {
         ...state,
-        tiles: state.tiles.map((tile) => {
-          const convertToSuper =
-            tile.indices.isEqual(clickedTile.indices) &&
-            tilesToDestroy.length > settings.superTileThreshold &&
-            tile.behavior !== "super";
+        tiles: newTiles,
+        animations: newTiles
+          .filter((tile) => tile.toDestroy)
+          .map((tile) => {
+            const origPos = tile.origPos.copy();
+            const origDim = tile.origDim.copy();
 
-          const convertToNormal =
-            tile.indices.isEqual(clickedTile.indices) &&
-            tile.behavior === "super";
+            const callback = (progress) => {
+              let { pos, dim, opacity } = tile;
+              if (clickedTile.behavior === "super") {
+                pos = Vector.add(
+                  Vector.mult(tile.pos, 1 - progress),
+                  Vector.mult(clickedTile.pos, progress)
+                );
+              } else {
+                dim = Vector.mult(tile.dim, 1 - progress);
+                pos = Vector.add(origPos, Vector.div(origDim, 2)).sub(
+                  Vector.div(dim, 2)
+                );
+              }
 
-          return {
-            ...tile,
-            toDestroy:
-              !convertToSuper &&
-              !!tilesToDestroy.find(({ tile: destroyedTile }) =>
-                destroyedTile.indices.isEqual(tile.indices)
-              ),
-            behavior: convertToSuper
-              ? "super"
-              : convertToNormal
-              ? "normal"
-              : tile.behavior,
-          };
-        }),
+              dispatch(
+                updateTile({
+                  ...tile,
+                  pos,
+                  dim,
+                  opacity: 1 - progress,
+                })
+              );
+            };
+
+            return new Animation(callback, 5);
+          }),
       };
 
     case UPDATE_TILE:
@@ -119,8 +158,7 @@ const reducer = (state = initialState, action) => {
     case REFILL_BOARD:
       const pairs = [];
 
-      // Kind of cumbersome but have to do it to get board pos and size
-
+      // Hack: create phantom tiles above the original board.
       const phantomTiles = [
         ...state.tiles,
         ...Array.from({ length: settings.size.x }, (_, x) =>
@@ -160,7 +198,6 @@ const reducer = (state = initialState, action) => {
             continue;
 
           // Iterate up until an available tile is found
-
           for (let y = tile.indices.y - 1; y >= -settings.size.y; y--) {
             const upperTile = phantomTiles.find((tileAbove) =>
               tileAbove.indices.isEqual(new Vector(tile.indices.x, y))
@@ -179,37 +216,66 @@ const reducer = (state = initialState, action) => {
           }
         }
       }
+      const updatedTiles = state.tiles.map((tile) => {
+        const pair = pairs.find(({ tile: origTile }) =>
+          origTile.indices.isEqual(tile.indices)
+        );
+        if (!pair) return tile;
 
+        return {
+          ...tile,
+          toDestroy: false,
+          behavior: pair.pairTile.behavior,
+          type: pair.pairTile.type,
+          pair: pair.pairTile,
+        };
+      });
       return {
         ...state,
-        tiles: state.tiles.map((tile) => {
-          const pair = pairs.find(({ tile: origTile }) =>
-            origTile.indices.isEqual(tile.indices)
-          );
-          if (!pair) return tile;
+        tiles: updatedTiles,
+        animations: updatedTiles
+          .filter((tile) => tile.pair)
+          .map((tile) => {
+            const startPos = tile.pair.pos.copy();
+            const endPos = tile.origPos.copy();
 
-          return {
-            ...tile,
-            toDestroy: false,
-            behavior: pair.pairTile.behavior,
-            type: pair.pairTile.type,
-            pair: pair.pairTile,
-          };
-        }),
+            const callback = (progress) => {
+              dispatch(
+                updateTile({
+                  ...tile,
+                  dim: tile.origDim,
+                  pos: Vector.add(
+                    Vector.mult(startPos, 1 - progress),
+                    Vector.mult(endPos, progress)
+                  ),
+                  opacity: 1,
+                  pair: null,
+                })
+              );
+            };
+
+            return new Animation(callback, 5);
+          }),
       };
 
     case UPDATE_SCORE:
       return {
         ...state,
         moves: state.moves - 1,
-        score: state.score+state.tiles.filter((tile) => tile.toDestroy).length,
+        score:
+          state.score + state.tiles.filter((tile) => tile.toDestroy).length,
       };
+
     case QUEUE_ANIMATION:
       return { ...state, animations: [...state.animations, action.payload] };
 
     case ON_ALL_ANIMATION_END:
       return { ...state, onAllAnimationEnd: action.payload };
 
+    case TOGGLE_INTERACTIVITY:
+      if (action.payload === undefined)
+        return { ...state, canInteract: !state.canInteract };
+      return { ...state, canInteract: action.payload };
     default:
       return state;
   }
@@ -222,13 +288,14 @@ const createStore = (reducer) => {
   const dispatch = (action) => {
     state = reducer(state, action);
   };
+  const dispatchAll = (actions) =>
+    actions.forEach((action) => dispatch(action));
 
   return {
     getState,
     dispatch,
+    dispatchAll,
   };
 };
 
-export const { getState, dispatch } = createStore(reducer);
-// export const getState = () => store.getState();
-// export const dispatch = (action) => store.dispatch(action);
+export const { getState, dispatch, dispatchAll } = createStore(reducer);

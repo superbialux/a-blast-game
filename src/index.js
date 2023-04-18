@@ -79,7 +79,7 @@ renderer.canvas.addEventListener(
       ({ finished }) => !finished
     );
 
-    if (animations.length > 0) return;
+    if (animations.length > 0 || !getState().canInteract) return;
     const bounds = renderer.canvas.getBoundingClientRect();
     const pos = new Vector(e.clientX - bounds.left, e.clientY - bounds.top);
     pos.div(new Vector(bounds.width, bounds.height));

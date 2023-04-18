@@ -6,6 +6,7 @@ export const tileDefault = {
   pair: null,
   toDestroy: false,
   behavior: "normal",
+  opacity: 1.0,
 };
 
 const createTiles = (size, boardPos, dim) => {
@@ -66,6 +67,11 @@ const onAllAnimationEnd = (callback) => ({
   payload: callback,
 });
 
+const toggleInteractivity = (bool) => ({
+  type: "TOGGLE_INTERACTIVITY",
+  payload: bool,
+});
+
 export {
   createTiles,
   destroyTiles,
@@ -75,4 +81,5 @@ export {
   onAllAnimationEnd,
   updateScore,
   changeScene,
+  toggleInteractivity,
 };
