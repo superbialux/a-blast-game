@@ -17,14 +17,6 @@ class Progress extends View {
     this.movesImg = this.assets.find((a) => a.name === "moves").src;
   }
 
-  addText(title, fontSize, pos) {
-    this.ctx.textAlign = "center";
-    this.ctx.font = `${fontSize}px Seymour One`;
-
-    this.ctx.fillStyle = "#fff";
-    this.ctx.fillText(title, pos.x, pos.y);
-  }
-
   renderMoves() {
     const dim = Vector.mult(this.dim, 0.6);
     const pos = Vector.sub(
