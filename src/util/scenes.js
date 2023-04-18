@@ -34,39 +34,58 @@ const scenesSchema = [
       {
         name: "scoreBox",
         src: ScoreBox,
+        type: "image",
       },
       {
         name: "score",
         src: Score,
+        type: "image",
       },
       {
         name: "moves",
         src: Moves,
+        type: "image",
       },
-      { name: "board", src: BoardBG },
+      { name: "board", src: BoardBG, type: "image" },
       {
         name: "super",
         src: SuperTile,
+        type: "image",
       },
       {
         name: "blue",
         src: BlueTile,
+        type: "image",
       },
       {
         name: "green",
         src: GreenTile,
+        type: "image",
       },
       {
         name: "purple",
         src: PurpleTile,
+        type: "image",
       },
       {
         name: "yellow",
         src: YellowTile,
+        type: "image",
       },
       {
         name: "red",
         src: RedTile,
+        type: "image",
+      },
+      {
+        name: "Seymour One",
+        src: "https://fonts.gstatic.com/s/seymourone/v20/4iCp6Khla9xbjQpoWGGd0lyLN4FNgYUJ31U.woff2",
+        type: "font",
+      },
+      {
+        name: "Seymour One",
+        src: "https://fonts.gstatic.com/s/seymourone/v20/4iCp6Khla9xbjQpoWGGd0lyPN4FNgYUJ.woff2",
+        type: "font",
       },
     ],
   },
@@ -76,14 +95,17 @@ const finishAssets = [
   {
     name: "scoreBox",
     src: ScoreBox,
+    type: "image",
   },
   {
     name: "score",
     src: Score,
+    type: "image",
   },
   {
     name: "moves",
     src: Moves,
+    type: "image",
   },
 ];
 

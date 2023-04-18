@@ -16,16 +16,31 @@ class Scene {
   async preload() {
     const promises = [];
     for (const asset of this.assets) {
-      const promise = new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onerror = reject;
-        img.src = asset.src;
+      let promise;
+      if (asset.type === "image") {
+        promise = new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onerror = reject;
+          img.src = asset.src;
 
-        img.onload = () => {
-          asset.src = img;
-          resolve();
+          img.onload = () => {
+            asset.src = img;
+            resolve();
+          };
+        });
+      } else {
+        const loadFont = async (asset) => {
+          try {
+            const font = new FontFace(asset.name, `url(${asset.src})`);
+            await font.load();
+            document.fonts.add(font);
+            return Promise.resolve();
+          } catch (error) {
+            return Promise.reject(error);
+          }
         };
-      });
+        promise = loadFont(asset);
+      }
       promises.push(promise);
     }
 

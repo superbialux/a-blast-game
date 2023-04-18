@@ -1,8 +1,4 @@
-import Vector from "../Math/Vector";
-import { getState } from "../store";
-import View from "./View";
-
-class Progress extends View {
+class Boosters extends View {
   constructor(ctx, pos, dim) {
     super(ctx, pos, dim);
 
@@ -17,9 +13,9 @@ class Progress extends View {
     this.movesImg = this.assets.find((a) => a.name === "moves").src;
   }
 
-  addText(title, fontSize, pos) {
-    this.ctx.textAlign = "center";
-    this.ctx.font = `${fontSize}px Seymour One`;
+  addText(title, pos) {
+    this.ctx.textAlign = "center";  
+    this.ctx.font = "48px serif";
 
     this.ctx.fillStyle = "#fff";
     this.ctx.fillText(title, pos.x, pos.y);
@@ -34,7 +30,7 @@ class Progress extends View {
 
     this.ctx.drawImage(this.movesImg, pos.x, pos.y, dim.x, dim.y);
 
-    this.addText(getState().moves, 60, pos.add(dim.mult(new Vector(0.5, 0.6))));
+    this.addText(getState().moves, pos.add(dim.mult(new Vector(0.5, 0.55))));
   }
 
   renderScore() {
@@ -45,9 +41,8 @@ class Progress extends View {
     );
 
     this.ctx.drawImage(this.scoreImg, pos.x, pos.y, dim.x, dim.y);
-
-    this.addText("ОЧКИ: ", 24, pos.add(dim.mult(new Vector(0.5, 0.35))));
-    this.addText(getState().score, 48, pos.add(dim.mult(new Vector(0.0, 1.2))));
+      
+    this.addText(getState().score, pos.add(dim.mult(new Vector(0.5, 0.6))));
   }
 
   renderBG() {
@@ -67,4 +62,4 @@ class Progress extends View {
   }
 }
 
-export default Progress;
+export default Boosters;

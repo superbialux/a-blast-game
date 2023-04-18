@@ -80,14 +80,14 @@ const reducer = (state = initialState, action) => {
       )
         return state; // should not check if the tile is super
       const newTiles = state.tiles.map((tile) => {
+        const isClicked = tile.indices.isEqual(clickedTile.indices);
+        const isSuper = tile.behavior === "super";
         const convertToSuper =
-          tile.indices.isEqual(clickedTile.indices) &&
+          isClicked &&
           tilesToDestroy.length > settings.superTileThreshold &&
-          tile.behavior !== "super";
+          !isSuper;
 
-        const convertToNormal =
-          tile.indices.isEqual(clickedTile.indices) &&
-          tile.behavior === "super";
+        const convertToNormal = isClicked && isSuper;
 
         return {
           ...tile,
@@ -96,6 +96,7 @@ const reducer = (state = initialState, action) => {
             !!tilesToDestroy.find(({ tile: destroyedTile }) =>
               destroyedTile.indices.isEqual(tile.indices)
             ),
+          // Conversion logic
           behavior: convertToSuper
             ? "super"
             : convertToNormal
