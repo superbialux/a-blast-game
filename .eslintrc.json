@@ -2,7 +2,8 @@
   "parser": "@babel/eslint-parser",
   "env": {
     "browser": true,
-    "es2021": true
+    "es2021": true,
+    "jest": true
   },
   "extends": ["airbnb-base", "prettier"],
   "overrides": [],
@@ -10,6 +11,7 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
+  "plugins": ["jest"],
   "rules": {
     "no-param-reassign": "off",
     "no-continue": "off",
@@ -21,6 +23,11 @@
         "variables": false,
         "allowNamedExports": true
       }
-    ]
+    ],
+    "jest/no-disabled-tests": "warn",
+    "jest/no-focused-tests": "error",
+    "jest/no-identical-title": "error",
+    "jest/prefer-to-have-length": "warn",
+    "jest/valid-expect": "error"
   }
 }

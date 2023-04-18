@@ -1,5 +1,5 @@
 import Vector from '../Math/Vector';
-import { types } from '../util/constants';
+import { settings, types } from '../util/constants';
 import randEl from '../util/number';
 
 export const tileDefault = {
@@ -9,11 +9,11 @@ export const tileDefault = {
   opacity: 1.0,
 };
 
-const createTiles = (size, boardPos, dim) => {
-  const tiles = Array.from({ length: size.x }, (_, x) =>
-    Array.from({ length: size.y }, (__, y) => {
+const createTiles = (boardPos, dim) => {
+  const tiles = Array.from({ length: settings.size.x }, (_, x) =>
+    Array.from({ length: settings.size.y }, (__, y) => {
       const indices = new Vector(x, y);
-      const tileSize = Vector.div(dim, size);
+      const tileSize = Vector.div(dim, settings.size);
       const pos = Vector.mult(indices, tileSize).add(boardPos);
       return {
         ...tileDefault,

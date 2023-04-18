@@ -6,7 +6,6 @@ import TileView from './Views/Tile';
 import Renderer from './Renderer';
 import { getState, dispatch } from './store';
 import { createTiles } from './store/actions';
-import { settings } from './util/constants';
 import scenesSchema from './util/scenes';
 
 const renderer = new Renderer('2d');
@@ -36,7 +35,7 @@ const ctx = renderer.init();
     renderer.addScene(scene);
   });
 
-  dispatch(createTiles(settings.size, views.board.pos, views.board.dim));
+  dispatch(createTiles(views.board.pos, views.board.dim));
 
   getState()
     .tiles.map((tile) => new TileView(ctx, tile, views.board))

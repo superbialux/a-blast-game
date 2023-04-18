@@ -15,7 +15,7 @@ import {
   UPDATE_TILE,
 } from './types';
 
-const initialState = {
+export const initialState = {
   moves: 25,
   score: 0,
   scene: 'game',
