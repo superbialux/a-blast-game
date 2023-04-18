@@ -1,4 +1,5 @@
 import Vector from '../Math/Vector';
+
 import { settings, types } from '../util/constants';
 import randEl from '../util/number';
 import { isBoardPlayable, tileDefault } from '../util/tiles';
@@ -70,6 +71,27 @@ const toggleInteractivity = (bool) => ({
   payload: bool,
 });
 
+const runOnClick = (event) => ({
+  type: 'RUN_ON_CLICK',
+  payload: event,
+});
+
+const createBoosters = (boosters) => {
+  const boostersObj = {};
+
+  boosters.forEach((booster) => {
+    boostersObj[booster.name] = {
+      action: booster.action,
+      count: booster.count,
+    };
+  });
+
+  return {
+    type: 'CREATE_BOOSTERS',
+    payload: boostersObj,
+  };
+};
+
 export {
   createTiles,
   destroyTiles,
@@ -80,4 +102,6 @@ export {
   updateScore,
   changeScene,
   toggleInteractivity,
+  runOnClick,
+  createBoosters,
 };

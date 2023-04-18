@@ -5,6 +5,10 @@ import YellowTile from '../assets/yellow.png';
 import RedTile from '../assets/red.png';
 import SuperTile from '../assets/super.png';
 import BoardBG from '../assets/board.png';
+import BoosterBG from '../assets/booster.png';
+import Bomb from '../assets/bomb.png';
+import Teleport from '../assets/teleport.png';
+import Shuffle from '../assets/shuffle.png';
 
 import ScoreBox from '../assets/scoreBox.png';
 import Score from '../assets/score.png';
@@ -12,6 +16,7 @@ import Moves from '../assets/moves.png';
 import Vector from '../Math/Vector';
 import BoardView from '../Views/Board';
 import Progress from '../Views/Progress';
+import Boosters from '../Views/Boosters';
 
 const scenesSchema = [
   {
@@ -26,8 +31,14 @@ const scenesSchema = [
       {
         name: 'progress',
         Component: Progress,
-        pos: new Vector(0.8, 0.4), // in the range from 0 to 1 where 0.5 is the center of the screen;
-        dim: new Vector(0.5, 0.5), // in the rnage from 0 to 1, relation to the resolution's bigger side
+        pos: new Vector(0.8, 0.4),
+        dim: new Vector(0.5, 0.5),
+      },
+      {
+        name: 'boosters',
+        Component: Boosters,
+        pos: new Vector(0.8, 0.95),
+        dim: new Vector(0.5, 0.5),
       },
     ],
     assets: [
@@ -75,6 +86,26 @@ const scenesSchema = [
       {
         name: 'red',
         src: RedTile,
+        type: 'image',
+      },
+      {
+        name: 'booster',
+        src: BoosterBG,
+        type: 'image',
+      },
+      {
+        name: 'bomb',
+        src: Bomb,
+        type: 'image',
+      },
+      {
+        name: 'teleport',
+        src: Teleport,
+        type: 'image',
+      },
+      {
+        name: 'shuffle',
+        src: Shuffle,
         type: 'image',
       },
       {

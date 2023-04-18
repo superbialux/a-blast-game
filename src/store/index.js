@@ -4,6 +4,7 @@ import { settings, types } from '../util/constants';
 import randEl from '../util/number';
 import { tileBehavior, tileDefault } from '../util/tiles';
 import { updateTile } from './actions';
+
 import {
   CHANGE_SCENE,
   CREATE_TILES,
@@ -11,9 +12,11 @@ import {
   ON_ALL_ANIMATION_END,
   QUEUE_ANIMATION,
   REFILL_BOARD,
+  RUN_ON_CLICK,
   TOGGLE_INTERACTIVITY,
   UPDATE_SCORE,
   UPDATE_TILE,
+  CREATE_BOOSTERS,
 } from './types';
 
 export const initialState = {
@@ -24,6 +27,8 @@ export const initialState = {
   tiles: [],
   onAllAnimationEnd: null,
   canInteract: true,
+  boosters: {},
+  runOnClick: null,
 };
 
 const reducer = (action, state = initialState) => {
@@ -252,6 +257,12 @@ const reducer = (action, state = initialState) => {
     case TOGGLE_INTERACTIVITY:
       if (action.payload === undefined) return { ...state, canInteract: !state.canInteract };
       return { ...state, canInteract: action.payload };
+
+    case RUN_ON_CLICK:
+      return { ...state, runOnClick: action.payload };
+
+    case CREATE_BOOSTERS:
+      return { ...state, boosters: action.payload };
     default:
       return state;
   }

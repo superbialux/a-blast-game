@@ -45,7 +45,7 @@ class View {
 
   addText(title, fontSize, pos) {
     this.ctx.textAlign = 'center';
-    this.ctx.font = `${fontSize}px Seymour One`;
+    this.ctx.font = `${(fontSize / 100) * (this.dim.x + this.dim.y)}px Seymour One`;
 
     this.ctx.fillStyle = '#fff';
     this.ctx.fillText(title, pos.x, pos.y);

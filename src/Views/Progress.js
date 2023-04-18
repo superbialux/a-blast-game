@@ -26,7 +26,7 @@ class Progress extends View {
 
     this.ctx.drawImage(this.movesImg, pos.x, pos.y, dim.x, dim.y);
 
-    this.addText(getState().moves, 60, pos.add(dim.mult(new Vector(0.5, 0.6))));
+    this.addText(getState().moves, 10, pos.add(dim.mult(new Vector(0.5, 0.6))));
   }
 
   renderScore() {
@@ -38,8 +38,8 @@ class Progress extends View {
 
     this.ctx.drawImage(this.scoreImg, pos.x, pos.y, dim.x, dim.y);
 
-    this.addText('ОЧКИ: ', 24, pos.add(dim.mult(new Vector(0.5, 0.35))));
-    this.addText(getState().score, 48, pos.add(dim.mult(new Vector(0.0, 1.2))));
+    this.addText('ОЧКИ: ', 4, pos.add(dim.mult(new Vector(0.5, 0.35))));
+    this.addText(getState().score, 6, pos.add(dim.mult(new Vector(0.0, 1.2))));
   }
 
   renderBG() {
