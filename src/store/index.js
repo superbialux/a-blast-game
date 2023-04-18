@@ -9,6 +9,7 @@ import {
   ON_ALL_ANIMATION_END,
   QUEUE_ANIMATION,
   REFILL_BOARD,
+  UPDATE_SCORE,
   UPDATE_TILE,
 } from "./types";
 
@@ -74,7 +75,7 @@ const reducer = (state = initialState, action) => {
         clickedTile.behavior === "normal" &&
         tilesToDestroy.length < settings.minTiles
       )
-        return state; // should not check if the tile is super ???
+        return state; // should not check if the tile is super
 
       return {
         ...state,
@@ -197,6 +198,12 @@ const reducer = (state = initialState, action) => {
         }),
       };
 
+    case UPDATE_SCORE:
+      return {
+        ...state,
+        moves: state.moves - 1,
+        score: state.score+state.tiles.filter((tile) => tile.toDestroy).length,
+      };
     case QUEUE_ANIMATION:
       return { ...state, animations: [...state.animations, action.payload] };
 

@@ -18,6 +18,7 @@ class Renderer {
 
   init() {
     const container = document.createElement("div");
+    container.id = "wrapper"
     container.classList.add("container");
 
     this.canvas.width = this.res.x;

@@ -6,6 +6,7 @@ import {
   onAllAnimationEnd,
   queueAnimation,
   refillBoard,
+  updateScore,
   updateTile,
 } from "../store/actions";
 import { settings } from "../util/constants";
@@ -26,7 +27,10 @@ class TileView extends View {
   }
 
   preload() {
-    this.img = this.assets.find((a) => a.name === (this.tile.behavior === 'super' ? 'super' : this.tile.type)).src;
+    this.img = this.assets.find(
+      (a) =>
+        a.name === (this.tile.behavior === "super" ? "super" : this.tile.type)
+    ).src;
   }
 
   render() {
@@ -35,8 +39,8 @@ class TileView extends View {
 
     if (
       !(
-        pos.x >= this.board.boundaryMin.x &&
-        pos.y >= this.board.boundaryMin.y &&
+        Math.ceil(pos.x) >= this.board.boundaryMin.x &&
+        Math.ceil(pos.y) >= this.board.boundaryMin.y &&
         Math.floor(pos.x + dim.x) <= this.board.boundaryMax.x &&
         Math.floor(pos.y + dim.y) <= this.board.boundaryMax.y
       )
@@ -62,8 +66,8 @@ class TileView extends View {
     const tiles = getState().tiles;
     for (const tile of tiles) {
       if (!tile.toDestroy) continue;
-      const origPos = tile.pos.copy();
-      const origDim = tile.dim.copy();
+      const origPos = tile.origPos.copy();
+      const origDim = tile.origDim.copy();
 
       const callback = (progress) => {
         let { pos, dim } = tile;
@@ -91,7 +95,7 @@ class TileView extends View {
       const animation = new Animation(callback, 5);
       dispatch(queueAnimation(animation));
     }
-
+    dispatch(updateScore());
     dispatch(
       onAllAnimationEnd(() => {
         dispatch(refillBoard(this.board));
@@ -111,7 +115,7 @@ class TileView extends View {
                   Vector.mult(startPos, 1 - progress),
                   Vector.mult(endPos, progress)
                 ),
-                pair: null
+                pair: null,
               })
             );
           };
@@ -120,43 +124,6 @@ class TileView extends View {
         });
       })
     );
-
-    // TODO: Refactor -- kind of cumbersome
-    // dispatch(
-    //   onAllAnimationEnd(() => {
-    //     beforeAnim.forEach((f) => f());
-    //     dispatch(refillBoard());
-    //     // getState().tilePairings.forEach(({ tile: tileToSwap, swapTile }) => {
-    //     //   const tile = getState().tiles.find(({ indices }) =>
-    //     //     indices.isEqual(tileToSwap.indices)
-    //     //   );
-
-    //     //   const origPos = tile.pos.copy();
-
-    //     //   dispatch(
-    //     //     updateTile({
-    //     //       ...tile,
-    //     //       pos: swapTile.pos,
-    //     //     })
-    //     //   );
-
-    //     //   const callback = (progress) => {
-    //     //     dispatch(
-    //     //       updateTile({
-    //     //         ...tile,
-    //     //         pos: Vector.add(
-    //     //           Vector.mult(swapTile.pos.copy(), 1 - progress),
-    //     //           Vector.mult(origPos.copy(), progress)
-    //     //         ),
-    //     //       })
-    //     //     );
-    //     //   };
-
-    //     //   const animation = new Animation(callback, 5);
-    //     //   dispatch(queueAnimation(animation));
-    //     // });
-    //   })
-    // );
   }
 }
 

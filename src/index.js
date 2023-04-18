@@ -71,6 +71,7 @@ const ctx = renderer.init();
   // }) ;
 })();
 
+const container = document.getElementById("wrapper");
 renderer.canvas.addEventListener(
   "click",
   (e) => {
@@ -79,8 +80,11 @@ renderer.canvas.addEventListener(
     );
 
     if (animations.length > 0) return;
-
-    renderer.manageEvent("handleClick", new Vector(e.offsetX, e.offsetY));
+    const bounds = renderer.canvas.getBoundingClientRect();
+    const pos = new Vector(e.clientX - bounds.left, e.clientY - bounds.top);
+    pos.div(new Vector(bounds.width, bounds.height));
+    pos.mult(renderer.res);
+    renderer.manageEvent("handleClick", pos);
   },
   false
 );

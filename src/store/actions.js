@@ -56,6 +56,11 @@ const changeScene = (scene) => ({
   payload: scene,
 });
 
+const updateScore = (callback) => ({
+  type: "UPDATE_SCORE",
+  payload: callback,
+});
+
 const onAllAnimationEnd = (callback) => ({
   type: "ON_ALL_ANIMATION_END",
   payload: callback,
@@ -68,5 +73,6 @@ export {
   refillBoard,
   queueAnimation,
   onAllAnimationEnd,
+  updateScore,
   changeScene,
 };

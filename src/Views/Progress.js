@@ -2,7 +2,7 @@ import Vector from "../Math/Vector";
 import { getState } from "../store";
 import View from "./View";
 
-class Progress extends View{
+class Progress extends View {
   constructor(ctx, pos, dim) {
     super(ctx, pos, dim);
 
@@ -21,38 +21,32 @@ class Progress extends View{
     this.ctx.textAlign = "center";
     this.ctx.font = "48px serif";
 
-    this.ctx.fillStyle = '#fff';
+    this.ctx.fillStyle = "#fff";
     this.ctx.fillText(title, pos.x, pos.y);
   }
 
   renderMoves() {
     const dim = Vector.mult(this.dim, 0.6);
-    const pos = Vector.sub(Vector.add(this.pos, Vector.div(this.dim, 2)), Vector.mult(dim, new Vector(0.5, 0.83)));
-
-    this.ctx.drawImage(
-      this.movesImg,
-      pos.x,
-      pos.y,
-      dim.x,
-      dim.y
+    const pos = Vector.sub(
+      Vector.add(this.pos, Vector.div(this.dim, 2)),
+      Vector.mult(dim, new Vector(0.5, 0.83))
     );
 
-    this.addText(getState().moves, pos.add(dim.mult(new Vector(0.5, 0.55))))
+    this.ctx.drawImage(this.movesImg, pos.x, pos.y, dim.x, dim.y);
+
+    this.addText(getState().moves, pos.add(dim.mult(new Vector(0.5, 0.55))));
   }
 
   renderScore() {
     const dim = Vector.mult(this.dim, new Vector(0.7, 0.35));
-    const pos = Vector.sub(Vector.add(this.pos, Vector.div(this.dim, 2)), Vector.mult(dim, new Vector(0.5, -0.15)));
-
-    this.ctx.drawImage(
-      this.scoreImg,
-      pos.x,
-      pos.y,
-      dim.x,
-      dim.y
+    const pos = Vector.sub(
+      Vector.add(this.pos, Vector.div(this.dim, 2)),
+      Vector.mult(dim, new Vector(0.5, -0.15))
     );
 
-    this.addText(getState().score, pos.add(dim.mult(new Vector(0.5, 0.6))))
+    this.ctx.drawImage(this.scoreImg, pos.x, pos.y, dim.x, dim.y);
+
+    this.addText(getState().score, pos.add(dim.mult(new Vector(0.5, 0.6))));
   }
 
   renderBG() {
@@ -66,10 +60,10 @@ class Progress extends View{
   }
 
   render() {
-    this.renderBG()
-    this.renderMoves()
-    this.renderScore()
+    this.renderBG();
+    this.renderMoves();
+    this.renderScore();
   }
 }
 
-export default Progress
+export default Progress;
