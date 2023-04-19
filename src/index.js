@@ -5,7 +5,7 @@ import Scene from './Scene';
 import TileView from './Views/Tile';
 import Renderer from './Renderer';
 import { getState, dispatch } from './store';
-import { changeScene, createBoosters, createTiles } from './store/actions';
+import { changeScene, createBoosters, createTiles, onAllAnimationEnd } from './store/actions';
 import { scenesSchema } from './util/scenes';
 import Booster from './Views/Booster';
 import boosters from './util/boosters';
@@ -65,16 +65,17 @@ const ctx = renderer.init();
   await Promise.all(promises);
 
   renderer.scenes.forEach((scene) => scene.propagateAssets());
-  renderer.update();
-  renderer.render(() => {
-    const boosterCount = Object.keys(getState().boosters).reduce(
-      (total, key) => total + getState().boosters[key].count,
-      0
-    );
 
-    if (boosterCount === 0 && !isBoardPlayable(getState().tiles || getState().moves === 0)) {
-      scenes.game.clear();
-      dispatch(changeScene('finish'));
+  renderer.render(() => {
+    if (getState().scene === 'game') {
+      const boosterCount = Object.keys(getState().boosters).reduce(
+        (total, key) => total + getState().boosters[key].count,
+        0
+      );
+
+      if ((boosterCount === 0 && !isBoardPlayable(getState().tiles)) || getState().moves === 0) {
+        dispatch(onAllAnimationEnd(() => dispatch(changeScene('finish'))));
+      }
     }
   });
 })();

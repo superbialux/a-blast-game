@@ -9,15 +9,16 @@ import BoosterBG from '../assets/booster.png';
 import Bomb from '../assets/bomb.png';
 import Teleport from '../assets/teleport.png';
 import Shuffle from '../assets/shuffle.png';
-
 import ScoreBox from '../assets/scoreBox.png';
 import Score from '../assets/score.png';
 import Moves from '../assets/moves.png';
+import Button from '../assets/button.png';
 import Vector from '../Math/Vector';
 import BoardView from '../Views/Board';
 import Progress from '../Views/Progress';
 import Boosters from '../Views/Boosters';
 import Overlay from '../Views/Overlay';
+import Result from '../Views/Result';
 
 const scenesSchema = [
   {
@@ -38,8 +39,8 @@ const scenesSchema = [
       {
         name: 'overlay',
         Component: Overlay,
-        pos: new Vector(0, 0),
-        dim: new Vector(2.0, 2.0),
+        pos: new Vector(0.5, 0.5),
+        dim: new Vector(1.0, 1.0),
         fullscreen: true,
       },
       {
@@ -125,6 +126,24 @@ const scenesSchema = [
         name: 'Seymour One',
         src: 'https://fonts.gstatic.com/s/seymourone/v20/4iCp6Khla9xbjQpoWGGd0lyPN4FNgYUJ.woff2',
         type: 'font',
+      },
+    ],
+  },
+  {
+    name: 'finish',
+    views: [
+      {
+        name: 'result',
+        Component: Result,
+        pos: new Vector(0.5, 0.5),
+        dim: new Vector(0.5, 0.5),
+      },
+    ],
+    assets: [
+      {
+        name: 'button',
+        src: Button,
+        type: 'image',
       },
     ],
   },

@@ -41,11 +41,8 @@ class Renderer {
     this.scene.manageEvent(action, pos);
   }
 
-  update() {
-    this.scene = this.scenes.find(({ name }) => name === getState().scene);
-  }
-
   render(callback) {
+    this.scene = this.scenes.find(({ name }) => name === getState().scene);
     if (!this.scene) return;
     this.ctx.clearRect(0, 0, this.res.x, this.res.y);
 

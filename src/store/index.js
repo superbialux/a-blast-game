@@ -23,7 +23,7 @@ import {
 } from './types';
 
 export const initialState = {
-  moves: 25,
+  moves: settings.moves,
   score: 0,
   scene: 'game',
   animations: [],
