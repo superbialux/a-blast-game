@@ -24,7 +24,8 @@ const ctx = renderer.init();
     scenes[s.name] = scene;
     s.views.forEach((v) => {
       const pos = Vector.mult(v.pos, renderer.res);
-      const dim = Vector.mult(v.dim, size);
+      let dim = Vector.mult(v.dim, size);
+      if (v.fullscreen) dim = Vector.mult(v.dim, renderer.res);
       const view = new v.Component(ctx, Vector.sub(pos, Vector.div(dim, 2)), dim);
 
       views[v.name] = view;
@@ -58,7 +59,7 @@ const ctx = renderer.init();
         boosters.find(({ name }) => name === key)
       );
     })
-    .forEach((booster) => scenes.game.addView(booster));
+    .forEach((booster) => scenes.game.addView(booster, true));
 
   await Promise.all(promises);
 

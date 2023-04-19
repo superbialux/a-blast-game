@@ -17,17 +17,12 @@ import Vector from '../Math/Vector';
 import BoardView from '../Views/Board';
 import Progress from '../Views/Progress';
 import Boosters from '../Views/Boosters';
+import Overlay from '../Views/Overlay';
 
 const scenesSchema = [
   {
     name: 'game',
     views: [
-      {
-        name: 'board',
-        Component: BoardView,
-        pos: new Vector(0.3, 0.5), // in the range from 0 to 1 where 0.5 is the center of the screen;
-        dim: new Vector(0.8, 0.8), // in the rnage from 0 to 1, relation to the resolution's bigger side
-      },
       {
         name: 'progress',
         Component: Progress,
@@ -39,6 +34,19 @@ const scenesSchema = [
         Component: Boosters,
         pos: new Vector(0.8, 0.95),
         dim: new Vector(0.5, 0.5),
+      },
+      {
+        name: 'overlay',
+        Component: Overlay,
+        pos: new Vector(0, 0),
+        dim: new Vector(2.0, 2.0),
+        fullscreen: true,
+      },
+      {
+        name: 'board',
+        Component: BoardView,
+        pos: new Vector(0.3, 0.5), // in the range from 0 to 1 where 0.5 is the center of the screen;
+        dim: new Vector(0.8, 0.8), // in the rnage from 0 to 1, relation to the resolution's bigger side
       },
     ],
     assets: [

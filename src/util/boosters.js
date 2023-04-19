@@ -29,6 +29,7 @@ const boosters = [
             const view = getViewByPos(renderer, pos);
             if (view && view.viewType === 'tile') {
               dispatch(useBooster('bomb'));
+              dispatch(runOnClick(null));
               dispatch(toggleInteractivity(false));
               const fadeOut = new Animation(
                 (t) => {
@@ -61,7 +62,6 @@ const boosters = [
                         onAllAnimationEnd(() => {
                           dispatch(refillBoard());
                           dispatch(toggleInteractivity(true));
-                          dispatch(runOnClick(null));
                         }),
                       ]);
                     }

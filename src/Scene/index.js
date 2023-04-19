@@ -6,8 +6,12 @@ class Scene {
     this.loadedAssets = {};
   }
 
-  addView(view) {
-    this.views = [...this.views, view];
+  addView(view, pushToFront = false) {
+    if (pushToFront) {
+      this.views = [view, ...this.views];
+    } else {
+      this.views = [...this.views, view];
+    }
   }
 
   addAsset(asset) {
