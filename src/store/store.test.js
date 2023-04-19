@@ -83,7 +83,63 @@ describe('common store behavior', () => {
     const pairs = tiles.filter(({ pair }) => pair);
     expect(pairs).not.toHaveLength(0);
   });
-  test('bomb booster destroy tiles in R radius', () => {
+
+  test("super tile destroys the whole row and column, and also destroys other super tiles if they're affected", () => {
+    const { tiles } = getState();
+
+    const centerIndices = new Vector(
+      Math.floor(settings.size.x * 0.5),
+      Math.floor(settings.size.y * 0.5)
+    );
+    const superTile = {
+      ...tiles.find(({ indices }) => indices.isEqual(centerIndices)),
+      behavior: 'super',
+    };
+
+    const superNeighbor = tiles.find(({ indices }) =>
+      indices.isEqual(Vector.add(centerIndices, new Vector(0, 1)))
+    );
+    superNeighbor.behavior = 'super';
+
+    expect(superTile).toBeTruthy();
+
+    const neighbors = [{ tile: superTile, recursive: true }];
+    let id = 0;
+
+    do {
+      const { tile, recursive } = neighbors[id];
+      const behavior = tileBehavior[tile.behavior];
+      if (!recursive) {
+        id += 1;
+        continue;
+      }
+
+      behavior.indices.forEach((index) => {
+        for (let x = 1; x <= behavior.radius.x; x += 1) {
+          for (let y = 1; y <= behavior.radius.y; y += 1) {
+            const neighbor = tiles.find(
+              ({ indices }) =>
+                indices &&
+                indices.isEqual(Vector.add(tile.indices, Vector.mult(index, new Vector(x, y))))
+            );
+
+            if (!neighbor) return;
+
+            if (!neighbors.find(({ tile: t }) => t.indices.isEqual(neighbor.indices)))
+              neighbors.push({ tile: neighbor, recursive: neighbor.behavior === 'super' });
+          }
+        }
+      });
+
+      id += 1;
+    } while (neighbors[id]);
+
+    expect(neighbors).toHaveLength(settings.size.x * 2 + settings.size.y - 2);
+    dispatch(destroyTiles(superTile));
+    expect(tiles.filter(({ toDestroy }) => toDestroy)).toHaveLength(neighbors.length);
+  });
+
+  test('bomb booster destroys tiles in R radius', () => {
     let { tiles } = getState();
 
     const tile = {
