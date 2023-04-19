@@ -18,6 +18,8 @@ import {
   UPDATE_TILE,
   CREATE_BOOSTERS,
   SHUFFLE_BOARD,
+  UPDATE_BOOSTER,
+  USE_BOOSTER,
 } from './types';
 
 export const initialState = {
@@ -258,12 +260,16 @@ const reducer = (action, state = initialState) => {
       return { ...state, tiles };
     }
 
-    case UPDATE_SCORE:
+    case UPDATE_SCORE: {
+      const toAdd = state.tiles.filter((tile) => tile.toDestroy).length;
+      if (toAdd === 0) return state;
+
       return {
         ...state,
         moves: state.moves - 1,
-        score: state.score + state.tiles.filter((tile) => tile.toDestroy).length,
+        score: state.score + toAdd,
       };
+    }
 
     case QUEUE_ANIMATION:
       return { ...state, animations: [...state.animations, action.payload] };
@@ -280,6 +286,27 @@ const reducer = (action, state = initialState) => {
 
     case CREATE_BOOSTERS:
       return { ...state, boosters: action.payload };
+
+    case UPDATE_BOOSTER: {
+      return {
+        ...state,
+        boosters: { ...state.boosters, [action.payload.name]: action.payload.booster },
+      };
+    }
+
+    case USE_BOOSTER: {
+      return {
+        ...state,
+        boosters: {
+          ...state.boosters,
+          [action.payload]: {
+            ...state.boosters[action.payload],
+            count: state.boosters[action.payload].count - 1,
+          },
+        },
+      };
+    }
+
     default:
       return state;
   }

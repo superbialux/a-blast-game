@@ -43,11 +43,11 @@ class View {
     return this;
   }
 
-  addText(title, fontSize, pos) {
+  addText(title, fontSize, pos, color) {
     this.ctx.textAlign = 'center';
     this.ctx.font = `${(fontSize / 100) * (this.dim.x + this.dim.y)}px Seymour One`;
 
-    this.ctx.fillStyle = '#fff';
+    this.ctx.fillStyle = color || '#fff';
     this.ctx.fillText(title, pos.x, pos.y);
   }
 }

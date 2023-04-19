@@ -95,6 +95,16 @@ const createBoosters = (boosters) => {
   };
 };
 
+const updateBooster = (name, booster) => ({
+  type: 'UPDATE_BOOSTER',
+  payload: { name, booster },
+});
+
+const useBooster = (name) => ({
+  type: 'USE_BOOSTER',
+  payload: name,
+});
+
 export {
   createTiles,
   destroyTiles,
@@ -108,4 +118,6 @@ export {
   toggleInteractivity,
   runOnClick,
   createBoosters,
+  updateBooster,
+  useBooster,
 };

@@ -31,7 +31,8 @@ class Booster extends View {
     this.addText(
       `${this.title} (${this.booster.count})`,
       4.5,
-      Vector.add(this.pos, Vector.div(this.dim, 2)).add(new Vector(0, imgDim.y * 0.85))
+      Vector.add(this.pos, Vector.div(this.dim, 2)).add(new Vector(0, imgDim.y * 0.85)),
+      this.booster.count === 0 ? '#d11f31' : '#fff'
     );
   }
 

@@ -5,7 +5,7 @@ import Scene from './Scene';
 import TileView from './Views/Tile';
 import Renderer from './Renderer';
 import { getState, dispatch } from './store';
-import { changeScene, createBoosters, createTiles, runOnClick } from './store/actions';
+import { changeScene, createBoosters, createTiles } from './store/actions';
 import { scenesSchema } from './util/scenes';
 import Booster from './Views/Booster';
 import boosters from './util/boosters';
@@ -72,26 +72,33 @@ const ctx = renderer.init();
   });
 })();
 
-[
-  //{ name: 'mousemove', action: (pos) => renderer.manageEvent('handleHover', pos) },
-  { name: 'click', action: (pos) => renderer.manageEvent('handleClick', pos) },
-].forEach((listener) =>
-  renderer.canvas.addEventListener(
-    listener.name,
-    (e) => {
-      const animations = getState().animations.filter(({ finished }) => !finished);
+renderer.canvas.addEventListener(
+  'click',
+  (e) => {
+    const animations = getState().animations.filter(({ finished }) => !finished);
 
-      if (animations.length > 0 || !getState().canInteract) return;
-      const bounds = renderer.canvas.getBoundingClientRect();
-      const pos = new Vector(e.clientX - bounds.left, e.clientY - bounds.top);
-      pos.div(new Vector(bounds.width, bounds.height));
-      pos.mult(renderer.res);
-      if (getState().runOnClick) {
-        getState().runOnClick(renderer, pos);
-        return;
-      }
-      listener.action(pos);
-    },
-    false
-  )
+    if (animations.length > 0 || !getState().canInteract) return;
+    const bounds = renderer.canvas.getBoundingClientRect();
+    const pos = new Vector(e.clientX - bounds.left, e.clientY - bounds.top);
+    pos.div(new Vector(bounds.width, bounds.height));
+    pos.mult(renderer.res);
+    if (getState().runOnClick) {
+      getState().runOnClick(renderer, pos);
+      return;
+    }
+    renderer.manageEvent('handleClick', pos);
+  },
+  false
+);
+
+renderer.canvas.addEventListener(
+  'mousemove',
+  (e) => {
+    const bounds = renderer.canvas.getBoundingClientRect();
+    const pos = new Vector(e.clientX - bounds.left, e.clientY - bounds.top);
+    pos.div(new Vector(bounds.width, bounds.height));
+    pos.mult(renderer.res);
+    renderer.manageEvent('handleHover', pos);
+  },
+  false
 );
