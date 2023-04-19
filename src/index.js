@@ -72,7 +72,7 @@ const ctx = renderer.init();
       0
     );
 
-    if (boosterCount === 0 && !isBoardPlayable(getState().titles || getState().moves === 0)) {
+    if (boosterCount === 0 && !isBoardPlayable(getState().tiles || getState().moves === 0)) {
       scenes.game.clear();
       dispatch(changeScene('finish'));
     }
