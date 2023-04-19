@@ -9,6 +9,7 @@ import { changeScene, createBoosters, createTiles } from './store/actions';
 import { scenesSchema } from './util/scenes';
 import Booster from './Views/Booster';
 import boosters from './util/boosters';
+import { isBoardPlayable } from './util/tiles';
 
 const renderer = new Renderer('2d');
 const ctx = renderer.init();
@@ -66,7 +67,12 @@ const ctx = renderer.init();
   renderer.scenes.forEach((scene) => scene.propagateAssets());
   renderer.update();
   renderer.render(() => {
-    if (getState().moves === 0) {
+    const boosterCount = Object.keys(getState().boosters).reduce(
+      (total, key) => total + getState().boosters[key].count,
+      0
+    );
+
+    if (boosterCount === 0 && !isBoardPlayable(getState().titles || getState().moves === 0)) {
       scenes.game.clear();
       dispatch(changeScene('finish'));
     }

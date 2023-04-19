@@ -6,6 +6,7 @@ import {
   toggleInteractivity,
   updateScore,
 } from '../store/actions';
+import { settings } from '../util/constants';
 import View from './View';
 
 class TileView extends View {
@@ -29,8 +30,6 @@ class TileView extends View {
   render() {
     const { dim, pos } = this.tile;
 
-    this.ctx.globalAlpha = this.tile.opacity;
-
     if (
       !(
         Math.ceil(pos.x) >= this.board.boundaryMin.x &&
@@ -42,8 +41,14 @@ class TileView extends View {
       this.ctx.globalAlpha = 0.0;
     }
 
-    if (this.active) this.ctx.globalAlpha = 0.9;
+    this.ctx.globalAlpha = this.tile.opacity;
+
     this.ctx.drawImage(this.img, pos.x, pos.y, dim.x, dim.y);
+
+    this.ctx.globalAlpha = this.active ? 0.1 : 0;
+    this.ctx.fillStyle = settings.color;
+    this.ctx.fillRect(pos.x, pos.y, dim.x, dim.y);
+
     this.ctx.globalAlpha = 1.0;
   }
 
