@@ -10,9 +10,11 @@ const settings = {
   minTiles: 2, // if surrounding tiles of the same type is less than 2 then do nothing
 
   // Animation Time (in frames)
-  refillBoardDuration: 10,
-  destroyTileDuration: 10,
-  transformToBombDuration: 5,
+  refillBoardDuration: 6,
+  destroyTileDuration: 6,
+  transformToBombDuration: 3,
+  teleportDuration: 3,
+  shuffleDuration: 3,
 };
 
 export { types, settings };

@@ -6,6 +6,7 @@ import {
   queueAnimation,
   refillBoard,
   runOnClick,
+  shuffleBoard,
   toggleInteractivity,
   updateScore,
   updateTile,
@@ -84,7 +85,6 @@ const boosters = [
             tiles.push(view.tile);
             if (tiles.length === 2) {
               tiles.forEach((tile, i) => {
-                console.log(tile);
                 const otherTile = i === 1 ? tiles[0] : tiles[1];
                 const fadeOut = new Animation(
                   (t) => {
@@ -95,7 +95,7 @@ const boosters = [
                       })
                     );
                   },
-                  Math.round(settings.transformToBombDuration / 2),
+                  Math.round(settings.teleportDuration / 2),
                   () => {
                     const fadeIn = new Animation(
                       (ti) =>
@@ -107,7 +107,7 @@ const boosters = [
                             opacity: ti,
                           })
                         ),
-                      settings.transformToBombDuration
+                      settings.teleportDuration
                     );
                     dispatch(queueAnimation(fadeIn));
                   }
@@ -142,15 +142,8 @@ const boosters = [
     name: 'shuffle',
     count: 3,
     title: 'Перемешать',
-    action: (tile) => {
-      console.log('dispatched');
-      dispatch(
-        runOnClick((view) => {
-          if (view.viewType === 'tile') {
-            console.log('yyyes');
-          }
-        })
-      );
+    action: () => {
+      dispatch(shuffleBoard());
     },
   },
 ];

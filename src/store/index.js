@@ -17,6 +17,7 @@ import {
   UPDATE_SCORE,
   UPDATE_TILE,
   CREATE_BOOSTERS,
+  SHUFFLE_BOARD,
 } from './types';
 
 export const initialState = {
@@ -244,6 +245,19 @@ const reducer = (action, state = initialState) => {
           }),
       };
     }
+
+    case SHUFFLE_BOARD: {
+      const tiles = state.tiles.slice();
+
+      for (let i = tiles.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tiles[i].type, tiles[j].type] = [tiles[j].type, tiles[i].type];
+        [tiles[i].behavior, tiles[j].behavior] = [tiles[j].behavior, tiles[i].behavior];
+      }
+
+      return { ...state, tiles };
+    }
+
     case UPDATE_SCORE:
       return {
         ...state,

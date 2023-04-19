@@ -45,6 +45,10 @@ const refillBoard = () => ({
   type: 'REFILL_BOARD',
 });
 
+const shuffleBoard = () => ({
+  type: 'SHUFFLE_BOARD',
+});
+
 const queueAnimation = (anim) => ({
   type: 'QUEUE_ANIMATION',
   payload: anim,
@@ -96,6 +100,7 @@ export {
   destroyTiles,
   updateTile,
   refillBoard,
+  shuffleBoard,
   queueAnimation,
   onAllAnimationEnd,
   updateScore,
