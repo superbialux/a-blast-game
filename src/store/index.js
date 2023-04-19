@@ -90,7 +90,7 @@ const reducer = (action, state = initialState) => {
           behavior = 'super';
         }
         if (convertToNormal) {
-          behavior = 'nomrla';
+          behavior = 'normal';
         }
 
         return {
@@ -137,7 +137,7 @@ const reducer = (action, state = initialState) => {
               );
             };
 
-            return new Animation(callback, 5);
+            return new Animation(callback, settings.destroyTileDuration);
           }),
       };
     }
@@ -158,9 +158,10 @@ const reducer = (action, state = initialState) => {
         ...state.tiles,
         ...Array.from({ length: settings.size.x }, (_, x) =>
           Array.from({ length: settings.size.y }, (__, i) => {
-            const indices = new Vector(x, -i - 1); // -1 to -5
-            const tileSize = Vector.div(action.payload.dim, settings.size);
-            const pos = Vector.mult(indices, tileSize).add(action.payload.pos);
+            const firstTile = state.tiles[0];
+            const indices = new Vector(x, -i - 1);
+            const tileSize = firstTile.origDim;
+            const pos = Vector.mult(indices, tileSize).add(firstTile.origPos);
 
             return {
               ...tileDefault,
@@ -239,7 +240,7 @@ const reducer = (action, state = initialState) => {
               );
             };
 
-            return new Animation(callback, 5);
+            return new Animation(callback, settings.refillBoardDuration);
           }),
       };
     }

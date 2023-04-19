@@ -72,7 +72,7 @@ describe('common store behavior', () => {
   test('board gets refilled and types get changed', () => {
     const { tiles: tilesBefore } = getState();
 
-    dispatch(refillBoard({ pos, dim }));
+    dispatch(refillBoard());
 
     const { tiles } = getState();
     expect(tilesBefore.map(({ type }) => type)).not.toStrictEqual(tiles.map(({ type }) => type));
@@ -150,7 +150,7 @@ describe('common store behavior', () => {
     expect(neighbors).toHaveLength(settings.size.x * 2 + settings.size.y - 2);
     dispatch(destroyTiles(superTile));
     expect(getState().tiles.filter(({ toDestroy }) => toDestroy)).toHaveLength(neighbors.length);
-    dispatch(refillBoard({ pos, dim }));
+    dispatch(refillBoard());
     expect(getState().tiles.filter(({ toDestroy }) => toDestroy)).toHaveLength(0);
   });
 

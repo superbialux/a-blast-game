@@ -5,8 +5,8 @@ import Scene from './Scene';
 import TileView from './Views/Tile';
 import Renderer from './Renderer';
 import { getState, dispatch } from './store';
-import { changeScene, createBoosters, createTiles } from './store/actions';
-import scenesSchema from './util/scenes';
+import { changeScene, createBoosters, createTiles, runOnClick } from './store/actions';
+import { scenesSchema } from './util/scenes';
 import Booster from './Views/Booster';
 import boosters from './util/boosters';
 
@@ -73,7 +73,7 @@ const ctx = renderer.init();
 })();
 
 [
-  { name: 'mousemove', action: (pos) => renderer.manageEvent('handleHover', pos) },
+  //{ name: 'mousemove', action: (pos) => renderer.manageEvent('handleHover', pos) },
   { name: 'click', action: (pos) => renderer.manageEvent('handleClick', pos) },
 ].forEach((listener) =>
   renderer.canvas.addEventListener(
@@ -86,6 +86,11 @@ const ctx = renderer.init();
       const pos = new Vector(e.clientX - bounds.left, e.clientY - bounds.top);
       pos.div(new Vector(bounds.width, bounds.height));
       pos.mult(renderer.res);
+      if (getState().runOnClick) {
+        getState().runOnClick(renderer, pos);
+        //dispatch(runOnClick(null));
+        return;
+      }
       listener.action(pos);
     },
     false

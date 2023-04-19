@@ -122,6 +122,30 @@ const scenesSchema = [
   },
 ];
 
+const getViewByPos = (renderer, pos) => {
+  let activeView = null;
+  renderer.scenes.forEach((s) => {
+    s.views.forEach((view) => {
+      if (
+        pos.x > view.boundaryMin.x &&
+        pos.x < view.boundaryMax.x &&
+        pos.y > view.boundaryMin.y &&
+        pos.y < view.boundaryMax.y
+      ) {
+        if (!activeView) {
+          activeView = view;
+          return;
+        }
+
+        if (view.area > activeView.area) return;
+
+        activeView = view;
+      }
+    });
+  });
+
+  return activeView;
+};
 // const finishAssets = [
 //   {
 //     name: 'scoreBox',
@@ -140,4 +164,4 @@ const scenesSchema = [
 //   },
 // ];
 
-export default scenesSchema;
+export { scenesSchema, getViewByPos };

@@ -41,9 +41,8 @@ const updateTile = (tile) => ({
   payload: tile,
 });
 
-const refillBoard = (board) => ({
+const refillBoard = () => ({
   type: 'REFILL_BOARD',
-  payload: board,
 });
 
 const queueAnimation = (anim) => ({

@@ -23,7 +23,7 @@ class TileView extends View {
   }
 
   preload() {
-    this.img = this.assets[this.tile.behavior === 'super' ? 'super' : this.tile.type];
+    this.img = this.assets[this.tile.behavior !== 'normal' ? this.tile.behavior : this.tile.type];
   }
 
   render() {
@@ -58,7 +58,7 @@ class TileView extends View {
       destroyTiles(this.tile),
       updateScore(),
       onAllAnimationEnd(() => {
-        dispatch(refillBoard(this.board));
+        dispatch(refillBoard());
         dispatch(toggleInteractivity());
       }),
     ]);

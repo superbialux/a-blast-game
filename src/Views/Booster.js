@@ -28,8 +28,8 @@ class Booster extends View {
     const imgPos = Vector.add(this.pos, Vector.div(Vector.sub(this.dim, imgDim), 2));
     this.ctx.drawImage(this.img, imgPos.x, imgPos.y * 0.99, imgDim.x, imgDim.y);
     this.addText(
-      this.title,
-      5,
+      `${this.title} (${this.booster.count})`,
+      4.5,
       Vector.add(this.pos, Vector.div(this.dim, 2)).add(new Vector(0, imgDim.y * 0.85))
     );
   }

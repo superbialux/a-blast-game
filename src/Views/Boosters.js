@@ -4,6 +4,8 @@ import View from './View';
 class Boosters extends View {
   constructor(ctx, pos, dim) {
     super(ctx, pos, dim);
+
+    this.bg = null;
   }
 
   preload() {
