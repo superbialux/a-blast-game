@@ -2,7 +2,7 @@ import { getState, dispatch, initialState } from '.';
 import Vector from '../Math/Vector';
 import { settings } from '../util/constants';
 import { isBoardPlayable, tileBehavior } from '../util/tiles';
-import { createTiles, destroyTiles, refillBoard } from './actions';
+import { createTiles, destroyTiles, refillBoard, updateTile } from './actions';
 
 describe('common store behavior', () => {
   const pos = new Vector(0, 0);
@@ -84,23 +84,36 @@ describe('common store behavior', () => {
     expect(pairs).not.toHaveLength(0);
   });
 
-  test("super tile destroys the whole row and column, and also destroys other super tiles if they're affected", () => {
+  const centerIndices = new Vector(
+    Math.floor(settings.size.x * 0.5),
+    Math.floor(settings.size.y * 0.5)
+  );
+
+  test('individual tiles get updated successfully', () => {
+    dispatch(createTiles(pos, dim));
     const { tiles } = getState();
 
-    const centerIndices = new Vector(
-      Math.floor(settings.size.x * 0.5),
-      Math.floor(settings.size.y * 0.5)
-    );
-    const superTile = {
+    const centerTile = {
       ...tiles.find(({ indices }) => indices.isEqual(centerIndices)),
       behavior: 'super',
     };
+    dispatch(updateTile(centerTile));
+    expect(getState().tiles.find(({ indices }) => indices.isEqual(centerIndices))).toBe(centerTile);
 
-    const superNeighbor = tiles.find(({ indices }) =>
-      indices.isEqual(Vector.add(centerIndices, new Vector(0, 1)))
+    const neighborIndices = Vector.add(centerIndices, new Vector(0, 1));
+    const neighborTile = {
+      ...tiles.find(({ indices }) => indices.isEqual(neighborIndices)),
+      behavior: 'super',
+    };
+    dispatch(updateTile(neighborTile));
+    expect(getState().tiles.find(({ indices }) => indices.isEqual(neighborIndices))).toBe(
+      neighborTile
     );
-    superNeighbor.behavior = 'super';
+  });
 
+  test("super tile destroys the whole row and column, and also destroys other super tiles if they're affected", () => {
+    const { tiles } = getState();
+    const superTile = tiles.find(({ indices }) => indices.isEqual(centerIndices));
     expect(superTile).toBeTruthy();
 
     const neighbors = [{ tile: superTile, recursive: true }];
@@ -136,20 +149,24 @@ describe('common store behavior', () => {
 
     expect(neighbors).toHaveLength(settings.size.x * 2 + settings.size.y - 2);
     dispatch(destroyTiles(superTile));
-    expect(tiles.filter(({ toDestroy }) => toDestroy)).toHaveLength(neighbors.length);
+    expect(getState().tiles.filter(({ toDestroy }) => toDestroy)).toHaveLength(neighbors.length);
+    dispatch(refillBoard({ pos, dim }));
+    expect(getState().tiles.filter(({ toDestroy }) => toDestroy)).toHaveLength(0);
   });
 
   test('bomb booster destroys tiles in R radius', () => {
+    dispatch(createTiles(pos, dim));
+
+    dispatch(
+      updateTile({
+        ...getState().tiles.find(({ indices }) => indices.isEqual(centerIndices)),
+        behavior: 'bomb',
+      })
+    );
+
     let { tiles } = getState();
 
-    const tile = {
-      ...tiles.find(({ indices }) =>
-        indices.isEqual(
-          new Vector(Math.floor(settings.size.x * 0.5), Math.floor(settings.size.y * 0.5))
-        )
-      ),
-      behavior: 'bomb',
-    };
+    const tile = tiles.find(({ indices }) => indices.isEqual(centerIndices));
     expect(tile).toBeTruthy();
 
     const neighbors = [];

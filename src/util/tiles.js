@@ -38,7 +38,7 @@ const tileBehavior = {
       new Vector(1, -1),
       new Vector(-1, 1),
     ],
-    radius: new Vector(2, 2), // destroy tiles around
+    radius: new Vector(1, 1), // destroy tiles around
     checkType: false,
     recursive: false,
   },
