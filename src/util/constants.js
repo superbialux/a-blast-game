@@ -12,11 +12,10 @@ const settings = {
   moves: 25,
   color: '#001d3b',
   // Animation Time (in frames)
-  refillBoardDuration: 6,
-  destroyTileDuration: 6,
-  transformToBombDuration: 3,
-  teleportDuration: 3,
-  shuffleDuration: 3,
+  refillBoardDuration: 10,
+  destroyTileDuration: 10,
+  transformToBombDuration: 5,
+  teleportDuration: 5,
 };
 
 export { types, settings };
