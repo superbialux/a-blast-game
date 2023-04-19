@@ -11,10 +11,10 @@ class Overlay extends View {
       this.ctx.globalAlpha = 1.0;
       this.addText(
         'ВЫБЕРИТЕ',
-        1,
-        Vector.add(this.pos, Vector.mult(this.dim, new Vector(0.9, 0.7)))
+        2,
+        Vector.add(this.pos, Vector.mult(this.dim, new Vector(0.8, 0.45)))
       );
-      this.addText('КЛЕТКУ', 1, Vector.add(this.pos, Vector.mult(this.dim, new Vector(0.9, 0.75))));
+      this.addText('КЛЕТКУ', 2, Vector.add(this.pos, Vector.mult(this.dim, new Vector(0.8, 0.55))));
     }
   }
 }
