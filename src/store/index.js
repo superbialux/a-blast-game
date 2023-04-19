@@ -201,6 +201,7 @@ const reducer = (action, state = initialState) => {
           }
         }
       }
+
       const updatedTiles = state.tiles.map((tile) => {
         const pair = pairs.find(({ tile: origTile }) => origTile.indices.isEqual(tile.indices));
         if (!pair) return tile;
