@@ -4,8 +4,14 @@ import Vector from './Math/Vector';
 import Scene from './Scene';
 import TileView from './Views/Tile';
 import Renderer from './Renderer';
-import { getState, dispatch } from './store';
-import { changeScene, createBoosters, createTiles, onAllAnimationEnd } from './store/actions';
+import { getState, dispatch, dispatchAll } from './store';
+import {
+  changeScene,
+  createBoosters,
+  createTiles,
+  onAllAnimationEnd,
+  toggleInteractivity,
+} from './store/actions';
 import { scenesSchema } from './util/scenes';
 import Booster from './Views/Booster';
 import boosters from './util/boosters';
@@ -74,7 +80,9 @@ const ctx = renderer.init();
       );
 
       if ((boosterCount === 0 && !isBoardPlayable(getState().tiles)) || getState().moves === 0) {
-        dispatch(onAllAnimationEnd(() => dispatch(changeScene('finish'))));
+        dispatch(
+          onAllAnimationEnd(() => dispatchAll([changeScene('finish'), toggleInteractivity(true)]))
+        );
       }
     }
   });

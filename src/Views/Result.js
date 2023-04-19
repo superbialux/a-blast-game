@@ -45,7 +45,6 @@ class Result extends View {
   }
 
   handleClick() {
-    console.log('lo');
     window.location.reload();
   }
 }
