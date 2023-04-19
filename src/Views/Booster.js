@@ -11,6 +11,7 @@ class Booster extends View {
     this.booster = null;
     this.name = name;
     this.title = title;
+    this.active = false;
   }
 
   preload() {

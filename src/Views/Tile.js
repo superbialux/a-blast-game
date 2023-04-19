@@ -54,12 +54,12 @@ class TileView extends View {
 
   handleClick() {
     dispatchAll([
-      toggleInteractivity(),
+      toggleInteractivity(false),
       destroyTiles(this.tile),
       updateScore(),
       onAllAnimationEnd(() => {
         dispatch(refillBoard());
-        dispatch(toggleInteractivity());
+        dispatch(toggleInteractivity(true));
       }),
     ]);
   }

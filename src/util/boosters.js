@@ -21,9 +21,9 @@ const boosters = [
     action: () => {
       dispatch(
         runOnClick((renderer, pos) => {
-          dispatch(toggleInteractivity(false));
           const view = getViewByPos(renderer, pos);
           if (view && view.viewType === 'tile') {
+            dispatch(toggleInteractivity(false));
             const fadeOut = new Animation(
               (t) => {
                 dispatch(
@@ -35,18 +35,12 @@ const boosters = [
               },
               Math.round(settings.transformToBombDuration / 2),
               () => {
-                dispatch(
-                  updateTile({
-                    ...view.tile,
-                    opacity: 0,
-                    behavior: 'bomb',
-                  })
-                );
                 const fadeIn = new Animation(
                   (ti) =>
                     dispatch(
                       updateTile({
                         ...view.tile,
+                        behavior: 'bomb',
                         opacity: ti,
                       })
                     ),
@@ -81,12 +75,64 @@ const boosters = [
     name: 'teleport',
     count: 3,
     title: 'Телепорт',
-    action: (tile) => {
-      console.log('dispatched');
+    action: () => {
+      const tiles = [];
       dispatch(
-        runOnClick((view) => {
-          if (view.viewType === 'tile') {
-            console.log('yyyes');
+        runOnClick((renderer, pos) => {
+          const view = getViewByPos(renderer, pos);
+          if (view && view.viewType === 'tile') {
+            tiles.push(view.tile);
+            if (tiles.length === 2) {
+              tiles.forEach((tile, i) => {
+                console.log(tile);
+                const otherTile = i === 1 ? tiles[0] : tiles[1];
+                const fadeOut = new Animation(
+                  (t) => {
+                    dispatch(
+                      updateTile({
+                        ...tile,
+                        opacity: 1 - t,
+                      })
+                    );
+                  },
+                  Math.round(settings.transformToBombDuration / 2),
+                  () => {
+                    const fadeIn = new Animation(
+                      (ti) =>
+                        dispatch(
+                          updateTile({
+                            ...tile,
+                            type: otherTile.type,
+                            behavior: otherTile.behavior,
+                            opacity: ti,
+                          })
+                        ),
+                      settings.transformToBombDuration
+                    );
+                    dispatch(queueAnimation(fadeIn));
+                  }
+                );
+                dispatch(queueAnimation(fadeOut));
+              });
+
+              dispatch(onAllAnimationEnd(() => dispatch(runOnClick(null))));
+
+              dispatchAll([
+                updateTile({
+                  ...tiles[0],
+                  type: tiles[1].type,
+                  behavior: tiles[1].behavior,
+                }),
+                updateTile({
+                  ...tiles[1],
+                  type: tiles[0].type,
+                  behavior: tiles[0].behavior,
+                }),
+              ]);
+              dispatch(runOnClick(null));
+            }
+          } else {
+            dispatch(runOnClick(null));
           }
         })
       );

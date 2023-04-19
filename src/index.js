@@ -88,7 +88,6 @@ const ctx = renderer.init();
       pos.mult(renderer.res);
       if (getState().runOnClick) {
         getState().runOnClick(renderer, pos);
-        //dispatch(runOnClick(null));
         return;
       }
       listener.action(pos);
