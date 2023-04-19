@@ -42,6 +42,7 @@ class TileView extends View {
       this.ctx.globalAlpha = 0.0;
     }
 
+    if (this.active) this.ctx.globalAlpha = 0.9;
     this.ctx.drawImage(this.img, pos.x, pos.y, dim.x, dim.y);
     this.ctx.globalAlpha = 1.0;
   }

@@ -13,6 +13,7 @@ class View {
     this.assets = [];
 
     this.viewType = type || 'common-view';
+    this.active = false;
   }
 
   clear() {
@@ -32,11 +33,11 @@ class View {
   }
 
   handleHover() {
-    return this;
+    this.active = true;
   }
 
   handleMouseLeave() {
-    return this;
+    this.active = false;
   }
 
   preload() {

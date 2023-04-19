@@ -55,7 +55,7 @@ class Scene {
     });
   }
 
-  manageEvent(action, pos, state) {
+  manageEvent(action, pos) {
     let activeView;
 
     this.views.forEach((view) => {
@@ -79,7 +79,7 @@ class Scene {
     if (this.lastActiveView) this.lastActiveView.handleMouseLeave();
 
     if (activeView) {
-      activeView[action](state, pos);
+      activeView[action](pos);
       this.lastActiveView = activeView;
     }
   }

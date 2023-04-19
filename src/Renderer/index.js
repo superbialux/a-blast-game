@@ -12,6 +12,7 @@ class Renderer {
 
     this.res = new Vector(width, height);
     this.canvas = document.createElement('canvas');
+    this.ctx = null;
     this.scenes = [];
     this.scene = null;
   }
@@ -27,7 +28,8 @@ class Renderer {
     document.body.appendChild(container);
     container.prepend(this.canvas);
 
-    return this.canvas.getContext(this.context);
+    this.ctx = this.canvas.getContext(this.context);
+    return this.ctx;
   }
 
   addScene(scene) {
@@ -45,7 +47,7 @@ class Renderer {
 
   render(callback) {
     if (!this.scene) return;
-    this.scene.clear();
+    this.ctx.clearRect(0, 0, this.res.x, this.res.y);
 
     const animations = getState().animations.filter(({ finished }) => !finished);
 
